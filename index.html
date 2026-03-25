@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carvago Order Dashboard</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;color:#374151}</style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;color:#374151}
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.8.1/prop-types.min.js"></script>
@@ -14,238 +17,338 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const {useState,useMemo}=React;
-const {BarChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer}=Recharts;
+const {useState,useEffect,useMemo} = React;
+const {BarChart,Bar,XAxis,YAxis,Tooltip,Legend,ResponsiveContainer,CartesianGrid} = Recharts;
 
-const D=[
-{k:"2024-01",l:"1/2024",c:{p:154,a:2},i:{p:0,a:0},cl:5,il:0},
-{k:"2024-02",l:"2/2024",c:{p:215,a:1},i:{p:0,a:0},cl:5,il:0},
-{k:"2024-03",l:"3/2024",c:{p:250,a:5},i:{p:0,a:0},cl:6,il:0},
-{k:"2024-04",l:"4/2024",c:{p:253,a:1},i:{p:0,a:0},cl:11,il:0},
-{k:"2024-05",l:"5/2024",c:{p:301,a:2},i:{p:0,a:0},cl:10,il:0},
-{k:"2024-06",l:"6/2024",c:{p:253,a:4},i:{p:0,a:0},cl:6,il:0},
-{k:"2024-07",l:"7/2024",c:{p:238,a:4},i:{p:0,a:0},cl:13,il:0},
-{k:"2024-08",l:"8/2024",c:{p:197,a:2},i:{p:0,a:0},cl:13,il:0},
-{k:"2024-09",l:"9/2024",c:{p:218,a:1},i:{p:0,a:0},cl:11,il:0},
-{k:"2024-10",l:"10/2024",c:{p:218,a:2},i:{p:0,a:0},cl:13,il:0},
-{k:"2024-11",l:"11/2024",c:{p:214,a:3},i:{p:0,a:0},cl:8,il:0},
-{k:"2024-12",l:"12/2024",c:{p:163,a:2},i:{p:0,a:0},cl:16,il:0},
-{k:"2025-01",l:"1/2025",c:{p:174,a:1},i:{p:0,a:0},cl:13,il:0},
-{k:"2025-02",l:"2/2025",c:{p:172,a:0},i:{p:0,a:0},cl:12,il:0},
-{k:"2025-03",l:"3/2025",c:{p:216,a:0},i:{p:0,a:0},cl:7,il:0},
-{k:"2025-04",l:"4/2025",c:{p:223,a:0},i:{p:0,a:0},cl:9,il:0},
-{k:"2025-05",l:"5/2025",c:{p:189,a:0},i:{p:0,a:0},cl:11,il:0},
-{k:"2025-06",l:"6/2025",c:{p:189,a:0},i:{p:6,a:0},cl:7,il:2},
-{k:"2025-07",l:"7/2025",c:{p:192,a:0},i:{p:55,a:0},cl:47,il:11},
-{k:"2025-08",l:"8/2025",c:{p:158,a:0},i:{p:41,a:0},cl:27,il:12},
-{k:"2025-09",l:"9/2025",c:{p:232,a:0},i:{p:52,a:0},cl:26,il:6},
-{k:"2025-10",l:"10/2025",c:{p:255,a:0},i:{p:65,a:0},cl:32,il:7},
-{k:"2025-11",l:"11/2025",c:{p:251,a:0},i:{p:81,a:0},cl:21,il:13},
-{k:"2025-12",l:"12/2025",c:{p:180,a:0},i:{p:45,a:0},cl:22,il:7},
-{k:"2026-01",l:"1/2026",c:{p:228,a:0},i:{p:53,a:0},cl:24,il:27},
-{k:"2026-02",l:"2/2026",c:{p:204,a:1},i:{p:65,a:0},cl:25,il:15},
-{k:"2026-03",l:"3/2026",c:{p:180,a:11},i:{p:76,a:11},cl:36,il:11},
-];
+// === AIRTABLE CONFIG ===
+const BASE_ID = 'app4c8CJDBWFzI4II';
+const TABLE_ID = 'tbl9Vw9l5sIXiO21g';
+const API_URL = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?sort%5B0%5D%5Bfield%5D=Month&sort%5B0%5D%5Bdirection%5D=asc&pageSize=100`;
 
-const REASONS=[
-{key:"car_not_available",name:"Car not available",color:"#ef4444"},
-{key:"car_was_sold",name:"Car was sold",color:"#f97316"},
-{key:"sales_lifecycle",name:"Sales Lifecycle",color:"#eab308"},
-{key:"personal_reasons",name:"Personal reasons",color:"#3b82f6"},
-{key:"deal_cancelled",name:"Deal cancelled",color:"#8b5cf6"},
-{key:"customer_withdrew",name:"Customer withdrew",color:"#ec4899"},
-{key:"car_issues",name:"Car issues",color:"#0ea5e9"},
-{key:"contract_not_paid",name:"Contract not paid",color:"#f59e0b"},
-{key:"chose_another_carvago_car",name:"Chose another Carvago car",color:"#6366f1"},
-{key:"other",name:"Other",color:"#9ca3af"}
-];
-
-const CLD=[
-{k:"2024-01",l:"1/2024",car_not_available:2,car_was_sold:0,sales_lifecycle:0,personal_reasons:3,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:0},
-{k:"2024-02",l:"2/2024",car_not_available:5,car_was_sold:0,sales_lifecycle:0,personal_reasons:2,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:0,other:0},
-{k:"2024-03",l:"3/2024",car_not_available:2,car_was_sold:1,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:2,other:2},
-{k:"2024-04",l:"4/2024",car_not_available:5,car_was_sold:0,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:1,contract_not_paid:2,chose_another_carvago_car:0,other:6},
-{k:"2024-05",l:"5/2024",car_not_available:6,car_was_sold:2,sales_lifecycle:0,personal_reasons:1,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:1,other:0},
-{k:"2024-06",l:"6/2024",car_not_available:3,car_was_sold:0,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:0,other:3},
-{k:"2024-07",l:"7/2024",car_not_available:6,car_was_sold:0,sales_lifecycle:0,personal_reasons:3,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:1,other:4},
-{k:"2024-08",l:"8/2024",car_not_available:6,car_was_sold:0,sales_lifecycle:0,personal_reasons:0,deal_cancelled:1,customer_withdrew:0,car_issues:1,contract_not_paid:1,chose_another_carvago_car:0,other:4},
-{k:"2024-09",l:"9/2024",car_not_available:3,car_was_sold:1,sales_lifecycle:0,personal_reasons:2,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:1,other:6},
-{k:"2024-10",l:"10/2024",car_not_available:5,car_was_sold:0,sales_lifecycle:0,personal_reasons:1,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:3,chose_another_carvago_car:0,other:7},
-{k:"2024-11",l:"11/2024",car_not_available:2,car_was_sold:1,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:1,contract_not_paid:2,chose_another_carvago_car:0,other:3},
-{k:"2024-12",l:"12/2024",car_not_available:10,car_was_sold:0,sales_lifecycle:0,personal_reasons:1,deal_cancelled:1,customer_withdrew:0,car_issues:1,contract_not_paid:0,chose_another_carvago_car:0,other:5},
-{k:"2025-01",l:"1/2025",car_not_available:8,car_was_sold:0,sales_lifecycle:0,personal_reasons:1,deal_cancelled:2,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:0,other:4},
-{k:"2025-02",l:"2/2025",car_not_available:4,car_was_sold:1,sales_lifecycle:0,personal_reasons:2,deal_cancelled:1,customer_withdrew:0,car_issues:1,contract_not_paid:0,chose_another_carvago_car:1,other:3},
-{k:"2025-03",l:"3/2025",car_not_available:3,car_was_sold:0,sales_lifecycle:0,personal_reasons:1,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:0,other:3},
-{k:"2025-04",l:"4/2025",car_not_available:7,car_was_sold:0,sales_lifecycle:0,personal_reasons:2,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:2},
-{k:"2025-05",l:"5/2025",car_not_available:6,car_was_sold:1,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:10},
-{k:"2025-06",l:"6/2025",car_not_available:5,car_was_sold:1,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:1,other:2},
-{k:"2025-07",l:"7/2025",car_not_available:27,car_was_sold:6,sales_lifecycle:0,personal_reasons:1,deal_cancelled:2,customer_withdrew:1,car_issues:2,contract_not_paid:1,chose_another_carvago_car:3,other:7},
-{k:"2025-08",l:"8/2025",car_not_available:4,car_was_sold:13,sales_lifecycle:1,personal_reasons:0,deal_cancelled:1,customer_withdrew:2,car_issues:2,contract_not_paid:2,chose_another_carvago_car:0,other:7},
-{k:"2025-09",l:"9/2025",car_not_available:6,car_was_sold:16,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:1,car_issues:1,contract_not_paid:0,chose_another_carvago_car:0,other:5},
-{k:"2025-10",l:"10/2025",car_not_available:6,car_was_sold:9,sales_lifecycle:2,personal_reasons:1,deal_cancelled:2,customer_withdrew:3,car_issues:2,contract_not_paid:0,chose_another_carvago_car:2,other:9},
-{k:"2025-11",l:"11/2025",car_not_available:7,car_was_sold:8,sales_lifecycle:2,personal_reasons:0,deal_cancelled:2,customer_withdrew:0,car_issues:1,contract_not_paid:0,chose_another_carvago_car:0,other:3},
-{k:"2025-12",l:"12/2025",car_not_available:4,car_was_sold:7,sales_lifecycle:0,personal_reasons:0,deal_cancelled:2,customer_withdrew:2,car_issues:4,contract_not_paid:0,chose_another_carvago_car:0,other:5},
-{k:"2026-01",l:"1/2026",car_not_available:11,car_was_sold:6,sales_lifecycle:0,personal_reasons:0,deal_cancelled:1,customer_withdrew:1,car_issues:0,contract_not_paid:0,chose_another_carvago_car:1,other:7},
-{k:"2026-02",l:"2/2026",car_not_available:9,car_was_sold:4,sales_lifecycle:0,personal_reasons:0,deal_cancelled:5,customer_withdrew:1,car_issues:2,contract_not_paid:0,chose_another_carvago_car:1,other:4},
-{k:"2026-03",l:"3/2026",car_not_available:7,car_was_sold:10,sales_lifecycle:2,personal_reasons:0,deal_cancelled:1,customer_withdrew:2,car_issues:1,contract_not_paid:0,chose_another_carvago_car:0,other:15}
-];
-
-const ILD=[
-{k:"2025-06",l:"6/2025",car_not_available:0,car_was_sold:1,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:1,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:0},
-{k:"2025-07",l:"7/2025",car_not_available:0,car_was_sold:2,sales_lifecycle:0,personal_reasons:0,deal_cancelled:0,customer_withdrew:4,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:6},
-{k:"2025-08",l:"8/2025",car_not_available:0,car_was_sold:1,sales_lifecycle:2,personal_reasons:0,deal_cancelled:0,customer_withdrew:3,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:6},
-{k:"2025-09",l:"9/2025",car_not_available:1,car_was_sold:0,sales_lifecycle:5,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:1,chose_another_carvago_car:0,other:0},
-{k:"2025-10",l:"10/2025",car_not_available:3,car_was_sold:0,sales_lifecycle:3,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:1},
-{k:"2025-11",l:"11/2025",car_not_available:3,car_was_sold:0,sales_lifecycle:8,personal_reasons:1,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:1,other:1},
-{k:"2025-12",l:"12/2025",car_not_available:0,car_was_sold:0,sales_lifecycle:7,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:0},
-{k:"2026-01",l:"1/2026",car_not_available:2,car_was_sold:0,sales_lifecycle:19,personal_reasons:1,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:3,other:2},
-{k:"2026-02",l:"2/2026",car_not_available:3,car_was_sold:0,sales_lifecycle:11,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:1,other:0},
-{k:"2026-03",l:"3/2026",car_not_available:2,car_was_sold:0,sales_lifecycle:9,personal_reasons:0,deal_cancelled:0,customer_withdrew:0,car_issues:0,contract_not_paid:0,chose_another_carvago_car:0,other:1}
-];
-
-const COL={paid:"#86c5a0",acc:"#ef8533",lost:"#3b82f6",grid:"#e5e7eb",txt:"#374151",lt:"#9ca3af"};
-
-const CTooltip=({active,payload,label})=>{
-if(!active||!payload)return null;
-const t=payload.reduce((s,p)=>s+(p.value||0),0);
-return React.createElement("div",{style:{background:"#fff",border:"1px solid #e5e7eb",borderRadius:8,padding:"12px 16px",boxShadow:"0 4px 12px rgba(0,0,0,.1)",fontSize:13}},
-React.createElement("div",{style:{fontWeight:600,marginBottom:6}},label),
-payload.map((p,i)=>React.createElement("div",{key:i,style:{display:"flex",justifyContent:"space-between",gap:16,marginBottom:2}},
-React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},
-React.createElement("span",{style:{width:10,height:10,borderRadius:2,background:p.fill||p.color,display:"inline-block"}}),p.name),
-React.createElement("span",{style:{fontWeight:600}},p.value))),
-React.createElement("div",{style:{borderTop:"1px solid #e5e7eb",marginTop:6,paddingTop:6,display:"flex",justifyContent:"space-between",fontWeight:700}},
-React.createElement("span",null,"Total"),React.createElement("span",null,t)));
-};
-
-const LTooltip=({active,payload,label})=>{
-if(!active||!payload||!payload.length)return null;
-return React.createElement("div",{style:{background:"#fff",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",boxShadow:"0 2px 8px rgba(0,0,0,.1)",fontSize:11}},
-React.createElement("div",{style:{fontWeight:600,marginBottom:3}},label),
-React.createElement("div",null,"Storno: ",React.createElement("strong",null,payload[0].value)));
-};
-
-const RTooltip=({active,payload,label})=>{
-if(!active||!payload)return null;
-const items=payload.filter(p=>p.value>0);
-const t=items.reduce((s,p)=>s+(p.value||0),0);
-return React.createElement("div",{style:{background:"#fff",border:"1px solid #e5e7eb",borderRadius:8,padding:"12px 16px",boxShadow:"0 4px 12px rgba(0,0,0,.1)",fontSize:12,maxWidth:300}},
-React.createElement("div",{style:{fontWeight:600,marginBottom:6}},label," - Total: ",t),
-items.map((p,i)=>React.createElement("div",{key:i,style:{display:"flex",justifyContent:"space-between",gap:12,marginBottom:2}},
-React.createElement("span",{style:{display:"flex",alignItems:"center",gap:5}},
-React.createElement("span",{style:{width:8,height:8,borderRadius:2,background:p.fill||p.color,display:"inline-block"}}),p.name),
-React.createElement("span",{style:{fontWeight:600}},p.value," ",React.createElement("span",{style:{color:"#9ca3af",fontWeight:400}},"(",t>0?Math.round(p.value/t*100):0,"%)")))));
-};
-
-const MiniLost=({data,lk})=>{
-const cd=useMemo(()=>data.map(d=>({label:d.l,lost:d[lk]})),[data,lk]);
-const mx=Math.max(...cd.map(d=>d.lost),1);
-const rl=(p)=>{if(!p.value)return null;return React.createElement("text",{x:p.x+p.width/2,y:p.y-3,textAnchor:"middle",fill:COL.txt,fontSize:8,fontWeight:600},p.value);};
-return React.createElement("div",{style:{position:"absolute",top:4,right:0,width:Math.min(data.length*18+60,520),height:110,background:"rgba(255,255,255,.95)",borderRadius:8,border:"1px solid #e5e7eb",boxShadow:"0 2px 8px rgba(0,0,0,.08)",padding:"6px 8px 2px",zIndex:10}},
-React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,marginBottom:2,paddingLeft:4}},
-React.createElement("span",{style:{width:8,height:8,borderRadius:2,background:COL.lost,display:"inline-block"}}),
-React.createElement("span",{style:{fontSize:10,fontWeight:600}},"Storno (Lost)")),
-React.createElement(ResponsiveContainer,{width:"100%",height:80},
-React.createElement(BarChart,{data:cd,margin:{top:12,right:2,left:2,bottom:0},barSize:10},
-React.createElement(XAxis,{dataKey:"label",tick:{fontSize:7,fill:COL.lt},axisLine:false,tickLine:false,interval:0,angle:-45,textAnchor:"end",height:22}),
-React.createElement(YAxis,{hide:true,domain:[0,Math.ceil(mx*1.3)]}),
-React.createElement(Tooltip,{content:React.createElement(LTooltip)}),
-React.createElement(Bar,{dataKey:"lost",name:"Storno",fill:COL.lost,radius:[2,2,0,0],label:rl}))));
-};
-
-const Chart=({title,data,dk,lk})=>{
-const cd=useMemo(()=>data.map(d=>({label:d.l,paid:d[dk].p,acc:d[dk].a,total:d[dk].p+d[dk].a})),[data,dk]);
-const rl1=(p)=>{if(p.index===undefined)return null;const r=cd[p.index];const t=r.paid+r.acc;if(!t||r.acc>0)return null;return React.createElement("text",{x:p.x+p.width/2,y:p.y-6,textAnchor:"middle",fill:COL.txt,fontSize:11,fontWeight:600},t);};
-const rl2=(p)=>{if(p.index===undefined)return null;const r=cd[p.index];const t=r.paid+r.acc;if(!t||r.acc===0)return null;return React.createElement("text",{x:p.x+p.width/2,y:p.y-6,textAnchor:"middle",fill:COL.txt,fontSize:11,fontWeight:600},t);};
-const mx=Math.max(...cd.map(d=>d.total));
-return React.createElement("div",{style:{background:"#fff",borderRadius:12,padding:"24px 24px 16px",boxShadow:"0 1px 3px rgba(0,0,0,.08)",border:"1px solid #e5e7eb",position:"relative"}},
-React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}},
-React.createElement("h2",{style:{margin:0,fontSize:18,fontWeight:700}},title),
-React.createElement("div",{style:{display:"flex",gap:16,fontSize:12}},
-React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},React.createElement("span",{style:{width:12,height:12,borderRadius:2,background:COL.paid,display:"inline-block"}}),"Contract Paid"),
-React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},React.createElement("span",{style:{width:12,height:12,borderRadius:2,background:COL.acc,display:"inline-block"}}),"Contract Accepted"))),
-React.createElement("div",{style:{position:"relative"}},
-React.createElement(MiniLost,{data:data,lk:lk}),
-React.createElement(ResponsiveContainer,{width:"100%",height:360},
-React.createElement(BarChart,{data:cd,margin:{top:24,right:10,left:0,bottom:5},barSize:26},
-React.createElement(CartesianGrid,{strokeDasharray:"3 3",stroke:COL.grid,vertical:false}),
-React.createElement(XAxis,{dataKey:"label",tick:{fontSize:10,fill:COL.lt},axisLine:{stroke:COL.grid},tickLine:false,interval:0,angle:-45,textAnchor:"end",height:50}),
-React.createElement(YAxis,{tick:{fontSize:11,fill:COL.lt},axisLine:false,tickLine:false,width:35,domain:[0,Math.ceil(mx*1.15/50)*50]}),
-React.createElement(Tooltip,{content:React.createElement(CTooltip)}),
-React.createElement(Bar,{dataKey:"paid",name:"Contract Paid",stackId:"a",fill:COL.paid,radius:[0,0,0,0],label:rl1}),
-React.createElement(Bar,{dataKey:"acc",name:"Contract Accepted",stackId:"a",fill:COL.acc,radius:[2,2,0,0],label:rl2})))));
-};
-
-const LostChart=({title,data})=>{
-const fd=useMemo(()=>data.slice().reverse(),[data]);
-const mx=useMemo(()=>Math.max(...fd.map(d=>REASONS.reduce((s,r)=>s+d[r.key],0))),[fd]);
-const totalLabel=(p)=>{
-if(p.index===undefined)return null;
-const d=fd[p.index];
-const t=REASONS.reduce((s,r)=>s+d[r.key],0);
-if(!t)return null;
-const lastKey=REASONS.slice().reverse().find(r=>d[r.key]>0);
-if(!lastKey||p.dataKey!==lastKey.key)return null;
-return React.createElement("text",{x:p.x+p.width/2,y:p.y-6,textAnchor:"middle",fill:COL.txt,fontSize:10,fontWeight:600},t);
-};
-return React.createElement("div",{style:{background:"#fef2f2",borderRadius:12,padding:"24px 24px 16px",boxShadow:"0 1px 3px rgba(0,0,0,.08)",border:"1px solid #fecaca"}},
-React.createElement("h2",{style:{margin:0,fontSize:18,fontWeight:700,marginBottom:16}},title),
-React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:"6px 16px",marginBottom:16,fontSize:11}},
-REASONS.map(r=>React.createElement("span",{key:r.key,style:{display:"flex",alignItems:"center",gap:4}},
-React.createElement("span",{style:{width:10,height:10,borderRadius:2,background:r.color,display:"inline-block"}}),r.name))),
-React.createElement(ResponsiveContainer,{width:"100%",height:400},
-React.createElement(BarChart,{data:fd,margin:{top:20,right:10,left:0,bottom:5},barSize:26},
-React.createElement(CartesianGrid,{strokeDasharray:"3 3",stroke:COL.grid,vertical:false}),
-React.createElement(XAxis,{dataKey:"l",tick:{fontSize:10,fill:COL.lt},axisLine:{stroke:COL.grid},tickLine:false,interval:0,angle:-45,textAnchor:"end",height:50}),
-React.createElement(YAxis,{tick:{fontSize:11,fill:COL.lt},axisLine:false,tickLine:false,width:35,domain:[0,Math.ceil(mx*1.15/10)*10]}),
-React.createElement(Tooltip,{content:React.createElement(RTooltip)}),
-...REASONS.map((r,i)=>React.createElement(Bar,{key:r.key,dataKey:r.key,name:r.name,stackId:"a",fill:r.color,radius:i===REASONS.length-1?[2,2,0,0]:[0,0,0,0],label:totalLabel})))));
-};
-
-const Card=({label,value,sub,color})=>React.createElement("div",{style:{background:"#fff",borderRadius:10,padding:"16px 20px",boxShadow:"0 1px 3px rgba(0,0,0,.06)",border:"1px solid #e5e7eb",minWidth:130,flex:"1 1 0"}},
-React.createElement("div",{style:{fontSize:12,color:COL.lt,marginBottom:4}},label),
-React.createElement("div",{style:{fontSize:26,fontWeight:700,color:color||COL.txt}},value),
-sub&&React.createElement("div",{style:{fontSize:11,color:COL.lt,marginTop:2}},sub));
-
-function Dashboard(){
-const[tr,setTr]=useState(27);
-const fd=useMemo(()=>D.slice(Math.max(0,D.length-tr)).slice().reverse(),[tr]);
-const cm=D[D.length-1],pm=D[D.length-2];
-const tc=cm.c.p+cm.c.a,ti=cm.i.p+cm.i.a;
-const ptc=pm.c.p+pm.c.a,pti=pm.i.p+pm.i.a;
-const pc=ptc>0?((tc/ptc-1)*100).toFixed(0):"N/A";
-const pi=pti>0?((ti/pti-1)*100).toFixed(0):"N/A";
-const id=useMemo(()=>fd.filter(d=>d.k>="2025-06"),[fd]);
-const tl=cm.cl+cm.il,ptl=pm.cl+pm.il;
-
-return React.createElement("div",{style:{minHeight:"100vh",background:"#f3f4f6"}},
-React.createElement("div",{style:{background:"linear-gradient(135deg,#1e3a5f 0%,#2d5a87 100%)",padding:"20px 32px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}},
-React.createElement("div",null,
-React.createElement("h1",{style:{margin:0,fontSize:22,fontWeight:700}},"Carvago Order Dashboard"),
-React.createElement("div",{style:{fontSize:13,opacity:.8,marginTop:4}},"Salesforce data | ",cm.l," (running)")),
-React.createElement("div",{style:{display:"flex",gap:8}},
-[6,12,24,27].map(r=>React.createElement("button",{key:r,onClick:()=>setTr(r),style:{padding:"6px 14px",borderRadius:6,border:"1px solid rgba(255,255,255,.3)",background:tr===r?"rgba(255,255,255,.2)":"transparent",color:"#fff",cursor:"pointer",fontSize:12,fontWeight:tr===r?600:400}},r+"M")))),
-
-React.createElement("div",{style:{padding:"24px 32px",maxWidth:1400,margin:"0 auto"}},
-React.createElement("div",{style:{display:"flex",gap:14,marginBottom:24,flexWrap:"wrap"}},
-React.createElement(Card,{label:"Carvago -"+cm.l,value:tc,sub:(pc>0?"+":"")+pc+"% vs "+pm.l,color:"#2d5a87"}),
-React.createElement(Card,{label:"Instamotion -"+cm.l,value:ti,sub:(pi>0?"+":"")+pi+"% vs "+pm.l,color:"#2d5a87"}),
-React.createElement(Card,{label:"Contract Accepted",value:cm.c.a+cm.i.a,sub:"not paid, current month",color:COL.acc}),
-React.createElement(Card,{label:"Contract Paid",value:cm.c.p+cm.i.p,sub:"paid, current month",color:"#22c55e"}),
-React.createElement(Card,{label:"Storno -"+cm.l,value:tl,sub:(ptl>0?(tl>ptl?"+":"")+ ((tl/ptl-1)*100).toFixed(0)+"%":"N/A")+" vs "+pm.l,color:COL.lost})),
-
-React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:24}},
-React.createElement(Chart,{title:"Carvago - Orders by Month | Updated: 25.3.2026",data:fd,dk:"c",lk:"cl"}),
-React.createElement(Chart,{title:"Instamotion - Orders by Month | Updated: 25.3.2026",data:id,dk:"i",lk:"il"}),
-React.createElement(LostChart,{title:"Carvago - Lost Orders by Reason | Updated: 25.3.2026",data:CLD}),
-React.createElement(LostChart,{title:"Instamotion - Lost Orders by Reason | Updated: 25.3.2026",data:ILD})),
-
-React.createElement("div",{style:{marginTop:24,padding:"12px 0",borderTop:"1px solid #e5e7eb",fontSize:11,color:COL.lt,display:"flex",justifyContent:"space-between"}},
-React.createElement("span",null,"Source: Salesforce | 6,871 records | 6,260 active + 611 Lost | 1/2024 - 3/2026"),
-React.createElement("span",null,"Paid Date = Contract Paid | Only Accepted Date = Contract Accepted | Lost Date = Storno"))));
+// === TOKEN MANAGEMENT ===
+function getToken() {
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('token');
+  if (urlToken) {
+    localStorage.setItem('airtable_dashboard_token', urlToken);
+    // Remove token from URL for security
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+    return urlToken;
+  }
+  return localStorage.getItem('airtable_dashboard_token');
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Dashboard));
+// === COLORS ===
+const C = {paid:'#86c5a0', acc:'#ef8533', lost:'#3b82f6'};
+const LC = ['#ef4444','#f97316','#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4','#6366f1','#a855f7','#ec4899'];
+const LOST_KEYS = ['car_not_available','car_was_sold','sales_lifecycle','personal_reasons','deal_cancelled','customer_withdrew','car_issues','contract_not_paid','chose_another_carvago_car','other'];
+const LOST_LABELS = {'car_not_available':'Car not available','car_was_sold':'Car was sold','sales_lifecycle':'Sales Lifecycle','personal_reasons':'Personal reasons','deal_cancelled':'Deal cancelled','customer_withdrew':'Customer withdrew','car_issues':'Car issues','contract_not_paid':'Contract not paid','chose_another_carvago_car':'Chose another Carvago car','other':'Other'};
+
+// === TOKEN ENTRY SCREEN ===
+const TokenScreen = () => {
+  const [input, setInput] = useState('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (input.trim()) {
+      localStorage.setItem('airtable_dashboard_token', input.trim());
+      window.location.reload();
+    }
+  };
+  return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f3f4f6'}}>
+      <div style={{background:'#fff',borderRadius:12,padding:40,maxWidth:480,width:'100%',boxShadow:'0 4px 24px rgba(0,0,0,.08)',textAlign:'center'}}>
+        <h1 style={{fontSize:24,fontWeight:700,marginBottom:8,color:'#111827'}}>Carvago Order Dashboard</h1>
+        <p style={{color:'#6b7280',marginBottom:24,fontSize:14,lineHeight:1.5}}>
+          Pro přístup k dashboardu zadejte Airtable API token.<br/>
+          Nebo přidejte token do URL: <code style={{background:'#f3f4f6',padding:'2px 6px',borderRadius:4,fontSize:12}}>?token=váš_token</code>
+        </p>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="password"
+            value={input}
+            onChange={e=>setInput(e.target.value)}
+            placeholder="patXXX..."
+            style={{width:'100%',padding:'10px 14px',border:'1px solid #d1d5db',borderRadius:8,fontSize:14,marginBottom:12,outline:'none'}}
+          />
+          <button type="submit" style={{width:'100%',padding:'10px 14px',background:'#3b82f6',color:'#fff',border:'none',borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer'}}>
+            Načíst dashboard
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// === LOADING SCREEN ===
+const LoadingScreen = () => (
+  <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f3f4f6'}}>
+    <div style={{textAlign:'center'}}>
+      <div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTopColor:'#3b82f6',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 16px'}}></div>
+      <p style={{color:'#6b7280',fontSize:14}}>Načítám data z Airtable...</p>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  </div>
+);
+
+// === ERROR SCREEN ===
+const ErrorScreen = ({msg, onRetry, onReset}) => (
+  <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f3f4f6'}}>
+    <div style={{background:'#fff',borderRadius:12,padding:40,maxWidth:480,width:'100%',boxShadow:'0 4px 24px rgba(0,0,0,.08)',textAlign:'center'}}>
+      <h2 style={{fontSize:20,fontWeight:700,marginBottom:8,color:'#ef4444'}}>Chyba při načítání dat</h2>
+      <p style={{color:'#6b7280',marginBottom:20,fontSize:14}}>{msg}</p>
+      <div style={{display:'flex',gap:8,justifyContent:'center'}}>
+        <button onClick={onRetry} style={{padding:'8px 20px',background:'#3b82f6',color:'#fff',border:'none',borderRadius:8,fontSize:14,cursor:'pointer'}}>Zkusit znovu</button>
+        <button onClick={onReset} style={{padding:'8px 20px',background:'#6b7280',color:'#fff',border:'none',borderRadius:8,fontSize:14,cursor:'pointer'}}>Změnit token</button>
+      </div>
+    </div>
+  </div>
+);
+
+// === CARD COMPONENT ===
+const Card = ({title, value, sub, color}) => (
+  <div style={{background:'#fff',borderRadius:10,padding:'14px 18px',flex:1,minWidth:160,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
+    <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>{title}</div>
+    <div style={{fontSize:28,fontWeight:700,color:color||'#111827'}}>{value}</div>
+    {sub && <div style={{fontSize:11,color:sub.startsWith('+') ? '#22c55e' : sub.startsWith('-') ? '#ef4444' : '#6b7280',marginTop:2}}>{sub}</div>}
+  </div>
+);
+
+// === CUSTOM TOOLTIPS ===
+const CTooltip = ({active,payload,label}) => {
+  if(!active||!payload) return null;
+  const t = payload.reduce((s,p)=>s+(p.value||0),0);
+  return (
+    <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)'}}>
+      <div style={{fontWeight:600,marginBottom:6}}>{label}</div>
+      {payload.map((p,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',gap:16,marginBottom:2}}>
+        <span style={{color:p.color}}>{p.name}</span><span style={{fontWeight:600}}>{p.value}</span>
+      </div>)}
+      <div style={{borderTop:'1px solid #e5e7eb',marginTop:4,paddingTop:4,fontWeight:700,display:'flex',justifyContent:'space-between'}}>
+        <span>Total</span><span>{t}</span>
+      </div>
+    </div>
+  );
+};
+
+const LTooltip = ({active,payload,label}) => {
+  if(!active||!payload) return null;
+  const items = payload.filter(p=>p.value>0).sort((a,b)=>b.value-a.value);
+  const t = items.reduce((s,p)=>s+p.value,0);
+  if(t===0) return null;
+  return (
+    <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)'}}>
+      <div style={{fontWeight:600,marginBottom:6}}>{label} — Lost: {t}</div>
+      {items.map((p,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',gap:16,marginBottom:2}}>
+        <span style={{color:p.color}}>{p.name}</span><span style={{fontWeight:600}}>{p.value} ({Math.round(p.value/t*100)}%)</span>
+      </div>)}
+    </div>
+  );
+};
+
+// === CHART COMPONENT ===
+const Chart = ({data, title, paidKey, accKey, lostKey, maxVal}) => (
+  <div style={{background:'#fff',borderRadius:10,padding:20,marginBottom:20,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
+    <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>{title}</h2>
+    <ResponsiveContainer width="100%" height={Math.max(data.length*28,200)}>
+      <BarChart data={[...data].reverse()} layout="vertical" margin={{left:10,right:30,top:0,bottom:0}}>
+        <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
+        <XAxis type="number" domain={[0,maxVal||'auto']} fontSize={11}/>
+        <YAxis type="category" dataKey="m" width={55} fontSize={11} tick={{fill:'#374151'}}/>
+        <Tooltip content={<CTooltip/>}/>
+        <Legend wrapperStyle={{fontSize:12}}/>
+        <Bar dataKey={paidKey} name="Contract Paid" stackId="a" fill={C.paid} radius={[0,0,0,0]}/>
+        <Bar dataKey={accKey} name="Contract Accepted" stackId="a" fill={C.acc}/>
+        <Bar dataKey={lostKey} name="Storno (Lost)" stackId="a" fill={C.lost} radius={[0,4,4,0]}/>
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+// === LOST CHART COMPONENT ===
+const LostChart = ({data, title, prefix}) => (
+  <div style={{background:'#fff',borderRadius:10,padding:20,marginBottom:20,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
+    <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>{title}</h2>
+    <ResponsiveContainer width="100%" height={Math.max(data.length*28,200)}>
+      <BarChart data={[...data].reverse()} layout="vertical" margin={{left:10,right:30,top:0,bottom:0}}>
+        <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
+        <XAxis type="number" fontSize={11}/>
+        <YAxis type="category" dataKey="m" width={55} fontSize={11} tick={{fill:'#374151'}}/>
+        <Tooltip content={<LTooltip/>}/>
+        <Legend wrapperStyle={{fontSize:11}}/>
+        {LOST_KEYS.map((k,i) => (
+          <Bar key={k} dataKey={`${prefix}_${k}`} name={LOST_LABELS[k]} stackId="a" fill={LC[i]} radius={i===LOST_KEYS.length-1?[0,4,4,0]:[0,0,0,0]}/>
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+// === MAIN DASHBOARD ===
+const Dashboard = ({rawData}) => {
+  const [range, setRange] = useState(27);
+  const today = new Date();
+  const updated = `${today.getDate()}.${today.getMonth()+1}.${today.getFullYear()}`;
+
+  // Transform Airtable records into data arrays
+  const {D, CLD, ILD, hasInsta} = useMemo(() => {
+    const D = rawData.map(r => {
+      const f = r.fields;
+      return {m: f.Label, cp: f.cp||0, ca: f.ca||0, ip: f.ip||0, ia: f.ia||0, cl: f.cl||0, il: f.il||0};
+    });
+    const CLD = rawData.map(r => {
+      const f = r.fields;
+      const o = {m: f.Label};
+      LOST_KEYS.forEach(k => o[`cl_${k}`] = f[`cl_${k}`]||0);
+      return o;
+    });
+    const ILD = rawData.map(r => {
+      const f = r.fields;
+      const o = {m: f.Label};
+      LOST_KEYS.forEach(k => o[`il_${k}`] = f[`il_${k}`]||0);
+      return o;
+    });
+    const hasInsta = D.some(d => d.ip > 0 || d.ia > 0 || d.il > 0);
+    return {D, CLD, ILD, hasInsta};
+  }, [rawData]);
+
+  const data = D.slice(-range);
+  const cld = CLD.slice(-range);
+  const ild = ILD.slice(-range);
+  const last = D[D.length - 1];
+  const prev = D.length > 1 ? D[D.length - 2] : null;
+
+  const pct = (a, b) => {
+    if (!b || b === 0) return '';
+    const p = Math.round((a - b) / b * 100);
+    return `${p >= 0 ? '+' : ''}${p}% vs ${prev?.m || ''}`;
+  };
+
+  const cTotal = last ? last.cp + last.ca : 0;
+  const cPrev = prev ? prev.cp + prev.ca : 0;
+  const iTotal = last ? last.ip + last.ia : 0;
+  const iPrev = prev ? prev.ip + prev.ia : 0;
+  const sTotal = last ? last.cl + last.il : 0;
+  const sPrev = prev ? prev.cl + prev.il : 0;
+
+  // Determine max values for consistent chart scaling
+  const cMax = Math.max(...data.map(d => d.cp + d.ca + d.cl));
+  const iMax = hasInsta ? Math.max(...data.map(d => d.ip + d.ia + d.il)) : 0;
+
+  const buttons = [6, 12, 24, D.length];
+  const btnLabels = ['6M', '12M', '24M', `${D.length}M`];
+
+  const instaMonths = new Set(data.filter(d => d.ip > 0 || d.ia > 0 || d.il > 0).map(d => d.m));
+  const instaData = data.filter(d => instaMonths.has(d.m));
+  const instaLost = ild.filter(d => instaMonths.has(d.m));
+
+  return (
+    <div style={{maxWidth:1100,margin:'0 auto',padding:'24px 16px'}}>
+      {/* Header */}
+      <div style={{marginBottom:20}}>
+        <h1 style={{fontSize:22,fontWeight:700,color:'#111827'}}>Carvago Order Dashboard</h1>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
+          <span style={{fontSize:12,color:'#6b7280'}}>Salesforce data | {last?.m} (running)</span>
+          <div style={{display:'flex',gap:4}}>
+            {buttons.map((b, i) => (
+              <button key={i} onClick={() => setRange(b)}
+                style={{padding:'4px 12px',fontSize:12,fontWeight:range===b?600:400,
+                  background:range===b?'#3b82f6':'#e5e7eb',color:range===b?'#fff':'#374151',
+                  border:'none',borderRadius:6,cursor:'pointer'}}>
+                {btnLabels[i]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div style={{display:'flex',gap:12,marginBottom:20,flexWrap:'wrap'}}>
+        <Card title={`Carvago - ${last?.m}`} value={cTotal} sub={pct(cTotal, cPrev)}/>
+        {hasInsta && <Card title={`Instamotion - ${last?.m}`} value={iTotal} sub={pct(iTotal, iPrev)}/>}
+        <Card title="Contract Accepted" value={last ? last.ca + last.ia : 0} sub="not paid, current month" color={C.acc}/>
+        <Card title="Contract Paid" value={last ? last.cp + last.ip : 0} sub="paid, current month" color={C.paid}/>
+        <Card title={`Storno - ${last?.m}`} value={sTotal} sub={pct(sTotal, sPrev)} color={C.lost}/>
+      </div>
+
+      {/* Carvago Orders Chart */}
+      <Chart data={data} title={`Carvago - Orders by Month | Updated: ${updated}`}
+        paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMax * 1.1)}/>
+
+      {/* Instamotion Orders Chart */}
+      {hasInsta && <Chart data={instaData} title={`Instamotion - Orders by Month | Updated: ${updated}`}
+        paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMax * 1.1)}/>}
+
+      {/* Carvago Lost Reasons Chart */}
+      <LostChart data={cld} title={`Carvago - Lost Orders by Reason | Updated: ${updated}`} prefix="cl"/>
+
+      {/* Instamotion Lost Reasons Chart */}
+      {hasInsta && <LostChart data={instaLost} title={`Instamotion - Lost Orders by Reason | Updated: ${updated}`} prefix="il"/>}
+
+      {/* Footer */}
+      <div style={{textAlign:'center',padding:'16px 0',fontSize:11,color:'#9ca3af',borderTop:'1px solid #e5e7eb',marginTop:12}}>
+        <div>Source: Salesforce | Data loaded dynamically from Airtable</div>
+        <div>Paid Date = Contract Paid | Only Accepted Date = Contract Accepted | Lost Date = Storno</div>
+      </div>
+    </div>
+  );
+};
+
+// === APP ROOT ===
+const App = () => {
+  const [token, setToken] = useState(null);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const t = getToken();
+    setToken(t);
+    if (!t) {
+      setLoading(false);
+      return;
+    }
+    fetchData(t);
+  }, []);
+
+  const fetchData = async (t) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const resp = await fetch(API_URL, {
+        headers: {'Authorization': `Bearer ${t}`}
+      });
+      if (!resp.ok) {
+        if (resp.status === 401 || resp.status === 403) {
+          throw new Error('Neplatný nebo expirovaný token. Zadejte nový token.');
+        }
+        throw new Error(`Chyba API: ${resp.status} ${resp.statusText}`);
+      }
+      const json = await resp.json();
+      setData(json.records);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    localStorage.removeItem('airtable_dashboard_token');
+    setToken(null);
+    setData(null);
+    setError(null);
+    setLoading(false);
+  };
+
+  if (!token && !loading) return <TokenScreen/>;
+  if (loading) return <LoadingScreen/>;
+  if (error) return <ErrorScreen msg={error} onRetry={() => fetchData(token)} onReset={handleReset}/>;
+  if (data) return <Dashboard rawData={data}/>;
+  return null;
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
