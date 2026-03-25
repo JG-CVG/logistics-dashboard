@@ -45,7 +45,7 @@ function getToken() {
 }
 
 // === COLORS ===
-const C = {paid:'#3E47DD', acc:'#7B87A8', lost:'#ef4444'};
+const C = {paid:'#3E47DD', acc:'#f59e0b', lost:'#94a3b8'};
 const LC = ['#ef4444','#f97316','#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4','#6366f1','#a855f7','#ec4899'];
 const LOST_KEYS = ['car_not_available','car_was_sold','sales_lifecycle','personal_reasons','deal_cancelled','customer_withdrew','car_issues','contract_not_paid','chose_another_carvago_car','other'];
 const LOST_LABELS = {'car_not_available':'Car not available','car_was_sold':'Car was sold','sales_lifecycle':'Sales Lifecycle','personal_reasons':'Personal reasons','deal_cancelled':'Deal cancelled','customer_withdrew':'Customer withdrew','car_issues':'Car issues','contract_not_paid':'Contract not paid','chose_another_carvago_car':'Chose another Carvago car','other':'Other'};
@@ -206,8 +206,8 @@ const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal}) => {
         <Bar dataKey={accKey} name="Contract Accepted" stackId="a" fill={C.acc}
           label={({x,y,width,height,index}) => {
             const v = reversed[index]?.[accKey]||0;
-            if(!v||height<14) return null;
-            return <text x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#fff" fontWeight={600}>{v}</text>;
+            if(!v||height<10) return null;
+            return <text x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#1F2B59" fontWeight={700}>{v}</text>;
           }}
         />
         <Bar dataKey={lostKey} name="Storno (Lost)" stackId="a" fill={C.lost} radius={[4,4,0,0]}
