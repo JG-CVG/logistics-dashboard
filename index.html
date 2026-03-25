@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Carvago Order Dashboard</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;color:#374151}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useMemo}=React;
+const {BarChart,Bar,XAxis,YAxis,CartesianGrid,Tooltip,ResponsiveContainer}=Recharts;
+
+const D=[
+{k:"2024-01",l:"1/2024",c:{p:154,a:2},i:{p:0,a:0},cl:5,il:0},
+{k:"2024-02",l:"2/2024",c:{p:215,a:1},i:{p:0,a:0},cl:5,il:0},
+{k:"2024-03",l:"3/2024",c:{p:250,a:5},i:{p:0,a:0},cl:6,il:0},
+{k:"2024-04",l:"4/2024",c:{p:253,a:1},i:{p:0,a:0},cl:11,il:0},
+{k:"2024-05",l:"5/2024",c:{p:301,a:2},i:{p:0,a:0},cl:10,il:0},
+{k:"2024-06",l:"6/2024",c:{p:253,a:4},i:{p:0,a:0},cl:6,il:0},
+{k:"2024-07",l:"7/2024",c:{p:238,a:4},i:{p:0,a:0},cl:13,il:0},
+{k:"2024-08",l:"8/2024",c:{p:197,a:2},i:{p:0,a:0},cl:13,il:0},
+{k:"2024-09",l:"9/2024",c:{p:218,a:1},i:{p:0,a:0},cl:11,il:0},
+{k:"2024-10",l:"10/2024",c:{p:218,a:2},i:{p:0,a:0},cl:13,il:0},
+{k:"2024-11",l:"11/2024",c:{p:214,a:3},i:{p:0,a:0},cl:8,il:0},
+{k:"2024-12",l:"12/2024",c:{p:163,a:2},i:{p:0,a:0},cl:16,il:0},
+{k:"2025-01",l:"1/2025",c:{p:174,a:1},i:{p:0,a:0},cl:13,il:0},
+{k:"2025-02",l:"2/2025",c:{p:172,a:0},i:{p:0,a:0},cl:12,il:0},
+{k:"2025-03",l:"3/2025",c:{p:216,a:0},i:{p:0,a:0},cl:7,il:0},
+{k:"2025-04",l:"4/2025",c:{p:223,a:0},i:{p:0,a:0},cl:9,il:0},
+{k:"2025-05",l:"5/2025",c:{p:189,a:0},i:{p:0,a:0},cl:11,il:0},
+{k:"2025-06",l:"6/2025",c:{p:189,a:0},i:{p:6,a:0},cl:7,il:2},
+{k:"2025-07",l:"7/2025",c:{p:192,a:0},i:{p:55,a:0},cl:47,il:11},
+{k:"2025-08",l:"8/2025",c:{p:158,a:0},i:{p:41,a:0},cl:27,il:12},
+{k:"2025-09",l:"9/2025",c:{p:232,a:0},i:{p:52,a:0},cl:26,il:6},
+{k:"2025-10",l:"10/2025",c:{p:255,a:0},i:{p:65,a:0},cl:32,il:7},
+{k:"2025-11",l:"11/2025",c:{p:251,a:0},i:{p:81,a:0},cl:21,il:13},
+{k:"2025-12",l:"12/2025",c:{p:180,a:0},i:{p:45,a:0},cl:22,il:7},
+{k:"2026-01",l:"1/2026",c:{p:228,a:0},i:{p:53,a:0},cl:24,il:27},
+{k:"2026-02",l:"2/2026",c:{p:204,a:1},i:{p:65,a:0},cl:25,il:15},
+{k:"2026-03",l:"3/2026",c:{p:180,a:11},i:{p:76,a:11},cl:36,il:11},
+];
+
+const COL={paid:"#86c5a0",acc:"#ef8533",lost:"#3b82f6",grid:"#e5e7eb",txt:"#374151",lt:"#9ca3af"};
+
+const CTooltip=({active,payload,label})=>{
+if(!active||!payload)return null;
+const t=payload.reduce((s,p)=>s+(p.value||0),0);
+return React.createElement("div",{style:{background:"#fff",border:"1px solid #e5e7eb",borderRadius:8,padding:"12px 16px",boxShadow:"0 4px 12px rgba(0,0,0,.1)",fontSize:13}},
+React.createElement("div",{style:{fontWeight:600,marginBottom:6}},label),
+payload.map((p,i)=>React.createElement("div",{key:i,style:{display:"flex",justifyContent:"space-between",gap:16,marginBottom:2}},
+React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},
+React.createElement("span",{style:{width:10,height:10,borderRadius:2,background:p.fill||p.color,display:"inline-block"}}),p.name),
+React.createElement("span",{style:{fontWeight:600}},p.value))),
+React.createElement("div",{style:{borderTop:"1px solid #e5e7eb",marginTop:6,paddingTop:6,display:"flex",justifyContent:"space-between",fontWeight:700}},
+React.createElement("span",null,"Celkem"),React.createElement("span",null,t)));
+};
+
+const LTooltip=({active,payload,label})=>{
+if(!active||!payload||!payload.length)return null;
+return React.createElement("div",{style:{background:"#fff",border:"1px solid #e5e7eb",borderRadius:6,padding:"8px 12px",boxShadow:"0 2px 8px rgba(0,0,0,.1)",fontSize:11}},
+React.createElement("div",{style:{fontWeight:600,marginBottom:3}},label),
+React.createElement("div",null,"Storno: ",React.createElement("strong",null,payload[0].value)));
+};
+
+const MiniLost=({data,lk})=>{
+const cd=useMemo(()=>data.map(d=>({label:d.l,lost:d[lk]})),[data,lk]);
+const mx=Math.max(...cd.map(d=>d.lost),1);
+const rl=(p)=>{if(!p.value)return null;return React.createElement("text",{x:p.x+p.width/2,y:p.y-3,textAnchor:"middle",fill:COL.txt,fontSize:8,fontWeight:600},p.value);};
+return React.createElement("div",{style:{position:"absolute",top:4,right:0,width:Math.min(data.length*18+60,520),height:110,background:"rgba(255,255,255,.95)",borderRadius:8,border:"1px solid #e5e7eb",boxShadow:"0 2px 8px rgba(0,0,0,.08)",padding:"6px 8px 2px",zIndex:10}},
+React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,marginBottom:2,paddingLeft:4}},
+React.createElement("span",{style:{width:8,height:8,borderRadius:2,background:COL.lost,display:"inline-block"}}),
+React.createElement("span",{style:{fontSize:10,fontWeight:600}},"Storno (Lost)")),
+React.createElement(ResponsiveContainer,{width:"100%",height:80},
+React.createElement(BarChart,{data:cd,margin:{top:12,right:2,left:2,bottom:0},barSize:10},
+React.createElement(XAxis,{dataKey:"label",tick:{fontSize:7,fill:COL.lt},axisLine:false,tickLine:false,interval:0,angle:-45,textAnchor:"end",height:22}),
+React.createElement(YAxis,{hide:true,domain:[0,Math.ceil(mx*1.3)]}),
+React.createElement(Tooltip,{content:React.createElement(LTooltip)}),
+React.createElement(Bar,{dataKey:"lost",name:"Storno",fill:COL.lost,radius:[2,2,0,0],label:rl}))));
+};
+
+const Chart=({title,data,dk,lk})=>{
+const cd=useMemo(()=>data.map(d=>({label:d.l,paid:d[dk].p,acc:d[dk].a,total:d[dk].p+d[dk].a})),[data,dk]);
+const rl1=(p)=>{if(p.index===undefined)return null;const r=cd[p.index];const t=r.paid+r.acc;if(!t||r.acc>0)return null;return React.createElement("text",{x:p.x+p.width/2,y:p.y-6,textAnchor:"middle",fill:COL.txt,fontSize:11,fontWeight:600},t);};
+const rl2=(p)=>{if(p.index===undefined)return null;const r=cd[p.index];const t=r.paid+r.acc;if(!t||r.acc===0)return null;return React.createElement("text",{x:p.x+p.width/2,y:p.y-6,textAnchor:"middle",fill:COL.txt,fontSize:11,fontWeight:600},t);};
+const mx=Math.max(...cd.map(d=>d.total));
+return React.createElement("div",{style:{background:"#fff",borderRadius:12,padding:"24px 24px 16px",boxShadow:"0 1px 3px rgba(0,0,0,.08)",border:"1px solid #e5e7eb",position:"relative"}},
+React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}},
+React.createElement("h2",{style:{margin:0,fontSize:18,fontWeight:700}},title),
+React.createElement("div",{style:{display:"flex",gap:16,fontSize:12}},
+React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},React.createElement("span",{style:{width:12,height:12,borderRadius:2,background:COL.paid,display:"inline-block"}}),"Contract Paid"),
+React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},React.createElement("span",{style:{width:12,height:12,borderRadius:2,background:COL.acc,display:"inline-block"}}),"Contract Accepted"))),
+React.createElement("div",{style:{position:"relative"}},
+React.createElement(MiniLost,{data:data,lk:lk}),
+React.createElement(ResponsiveContainer,{width:"100%",height:360},
+React.createElement(BarChart,{data:cd,margin:{top:24,right:10,left:0,bottom:5},barSize:26},
+React.createElement(CartesianGrid,{strokeDasharray:"3 3",stroke:COL.grid,vertical:false}),
+React.createElement(XAxis,{dataKey:"label",tick:{fontSize:10,fill:COL.lt},axisLine:{stroke:COL.grid},tickLine:false,interval:0,angle:-45,textAnchor:"end",height:50}),
+React.createElement(YAxis,{tick:{fontSize:11,fill:COL.lt},axisLine:false,tickLine:false,width:35,domain:[0,Math.ceil(mx*1.15/50)*50]}),
+React.createElement(Tooltip,{content:React.createElement(CTooltip)}),
+React.createElement(Bar,{dataKey:"paid",name:"Contract Paid",stackId:"a",fill:COL.paid,radius:[0,0,0,0],label:rl1}),
+React.createElement(Bar,{dataKey:"acc",name:"Contract Accepted",stackId:"a",fill:COL.acc,radius:[2,2,0,0],label:rl2})))));
+};
+
+const Card=({label,value,sub,color})=>React.createElement("div",{style:{background:"#fff",borderRadius:10,padding:"16px 20px",boxShadow:"0 1px 3px rgba(0,0,0,.06)",border:"1px solid #e5e7eb",minWidth:130,flex:"1 1 0"}},
+React.createElement("div",{style:{fontSize:12,color:COL.lt,marginBottom:4}},label),
+React.createElement("div",{style:{fontSize:26,fontWeight:700,color:color||COL.txt}},value),
+sub&&React.createElement("div",{style:{fontSize:11,color:COL.lt,marginTop:2}},sub));
+
+function Dashboard(){
+const[tr,setTr]=useState(27);
+const fd=useMemo(()=>D.slice(Math.max(0,D.length-tr)),[tr]);
+const cm=D[D.length-1],pm=D[D.length-2];
+const tc=cm.c.p+cm.c.a,ti=cm.i.p+cm.i.a;
+const ptc=pm.c.p+pm.c.a,pti=pm.i.p+pm.i.a;
+const pc=ptc>0?((tc/ptc-1)*100).toFixed(0):"N/A";
+const pi=pti>0?((ti/pti-1)*100).toFixed(0):"N/A";
+const id=useMemo(()=>fd.filter(d=>d.k>="2025-06"),[fd]);
+const tl=cm.cl+cm.il,ptl=pm.cl+pm.il;
+
+return React.createElement("div",{style:{minHeight:"100vh",background:"#f3f4f6"}},
+React.createElement("div",{style:{background:"linear-gradient(135deg,#1e3a5f 0%,#2d5a87 100%)",padding:"20px 32px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+React.createElement("div",null,
+React.createElement("h1",{style:{margin:0,fontSize:22,fontWeight:700}},"Carvago Order Dashboard"),
+React.createElement("div",{style:{fontSize:13,opacity:.8,marginTop:4}},"Salesforce data | ",cm.l," (probÃ­hÃ¡)")),
+React.createElement("div",{style:{display:"flex",gap:8}},
+[6,12,24,27].map(r=>React.createElement("button",{key:r,onClick:()=>setTr(r),style:{padding:"6px 14px",borderRadius:6,border:"1px solid rgba(255,255,255,.3)",background:tr===r?"rgba(255,255,255,.2)":"transparent",color:"#fff",cursor:"pointer",fontSize:12,fontWeight:tr===r?600:400}},r+"M")))),
+
+React.createElement("div",{style:{padding:"24px 32px",maxWidth:1400,margin:"0 auto"}},
+React.createElement("div",{style:{display:"flex",gap:14,marginBottom:24,flexWrap:"wrap"}},
+React.createElement(Card,{label:"Carvago â "+cm.l,value:tc,sub:(pc>0?"+":"")+pc+"% vs "+pm.l,color:"#2d5a87"}),
+React.createElement(Card,{label:"Instamotion â "+cm.l,value:ti,sub:(pi>0?"+":"")+pi+"% vs "+pm.l,color:"#2d5a87"}),
+React.createElement(Card,{label:"Contract Accepted",value:cm.c.a+cm.i.a,sub:"nezaplaceno, akt. mÄsÃ­c",color:COL.acc}),
+React.createElement(Card,{label:"Contract Paid",value:cm.c.p+cm.i.p,sub:"zaplaceno, akt. mÄsÃ­c",color:"#22c55e"}),
+React.createElement(Card,{label:"Storno â "+cm.l,value:tl,sub:(ptl>0?(tl>ptl?"+":"")+ ((tl/ptl-1)*100).toFixed(0)+"%":"N/A")+" vs "+pm.l,color:COL.lost})),
+
+React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:24}},
+React.createElement(Chart,{title:"Carvago â ObjednÃ¡vky po mÄsÃ­cÃ­ch",data:fd,dk:"c",lk:"cl"}),
+React.createElement(Chart,{title:"Instamotion â ObjednÃ¡vky po mÄsÃ­cÃ­ch",data:id,dk:"i",lk:"il"})),
+
+React.createElement("div",{style:{marginTop:24,padding:"12px 0",borderTop:"1px solid #e5e7eb",fontSize:11,color:COL.lt,display:"flex",justifyContent:"space-between"}},
+React.createElement("span",null,"Zdroj: Salesforce | 6 856 zÃ¡znamÅ¯ | 6 309 aktivnÃ­ch + 547 Lost | 1/2024 â 3/2026"),
+React.createElement("span",null,"Paid Date â Contract Paid | Jen Accepted Date â Contract Accepted | Lost Date â Storno"))));
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Dashboard));
+</script>
+</body>
+</html>
