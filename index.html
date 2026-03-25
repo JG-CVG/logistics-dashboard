@@ -59,7 +59,7 @@ React.createElement("span",{style:{display:"flex",alignItems:"center",gap:6}},
 React.createElement("span",{style:{width:10,height:10,borderRadius:2,background:p.fill||p.color,display:"inline-block"}}),p.name),
 React.createElement("span",{style:{fontWeight:600}},p.value))),
 React.createElement("div",{style:{borderTop:"1px solid #e5e7eb",marginTop:6,paddingTop:6,display:"flex",justifyContent:"space-between",fontWeight:700}},
-React.createElement("span",null,"Celkem"),React.createElement("span",null,t)));
+React.createElement("span",null,"Total"),React.createElement("span",null,t)));
 };
 
 const LTooltip=({active,payload,label})=>{
@@ -128,25 +128,25 @@ return React.createElement("div",{style:{minHeight:"100vh",background:"#f3f4f6"}
 React.createElement("div",{style:{background:"linear-gradient(135deg,#1e3a5f 0%,#2d5a87 100%)",padding:"20px 32px",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}},
 React.createElement("div",null,
 React.createElement("h1",{style:{margin:0,fontSize:22,fontWeight:700}},"Carvago Order Dashboard"),
-React.createElement("div",{style:{fontSize:13,opacity:.8,marginTop:4}},"Salesforce data | ",cm.l," (probÃ­hÃ¡)")),
+React.createElement("div",{style:{fontSize:13,opacity:.8,marginTop:4}},"Salesforce data | ",cm.l," (running)")),
 React.createElement("div",{style:{display:"flex",gap:8}},
 [6,12,24,27].map(r=>React.createElement("button",{key:r,onClick:()=>setTr(r),style:{padding:"6px 14px",borderRadius:6,border:"1px solid rgba(255,255,255,.3)",background:tr===r?"rgba(255,255,255,.2)":"transparent",color:"#fff",cursor:"pointer",fontSize:12,fontWeight:tr===r?600:400}},r+"M")))),
 
 React.createElement("div",{style:{padding:"24px 32px",maxWidth:1400,margin:"0 auto"}},
 React.createElement("div",{style:{display:"flex",gap:14,marginBottom:24,flexWrap:"wrap"}},
-React.createElement(Card,{label:"Carvago â "+cm.l,value:tc,sub:(pc>0?"+":"")+pc+"% vs "+pm.l,color:"#2d5a87"}),
-React.createElement(Card,{label:"Instamotion â "+cm.l,value:ti,sub:(pi>0?"+":"")+pi+"% vs "+pm.l,color:"#2d5a87"}),
-React.createElement(Card,{label:"Contract Accepted",value:cm.c.a+cm.i.a,sub:"nezaplaceno, akt. mÄsÃ­c",color:COL.acc}),
-React.createElement(Card,{label:"Contract Paid",value:cm.c.p+cm.i.p,sub:"zaplaceno, akt. mÄsÃ­c",color:"#22c55e"}),
-React.createElement(Card,{label:"Storno â "+cm.l,value:tl,sub:(ptl>0?(tl>ptl?"+":"")+ ((tl/ptl-1)*100).toFixed(0)+"%":"N/A")+" vs "+pm.l,color:COL.lost})),
+React.createElement(Card,{label:"Carvago  -  "+cm.l,value:tc,sub:(pc>0?"+":"")+pc+"% vs "+pm.l,color:"#2d5a87"}),
+React.createElement(Card,{label:"Instamotion  -  "+cm.l,value:ti,sub:(pi>0?"+":"")+pi+"% vs "+pm.l,color:"#2d5a87"}),
+React.createElement(Card,{label:"Contract Accepted",value:cm.c.a+cm.i.a,sub:"nezaplaceno, akt. month",color:COL.acc}),
+React.createElement(Card,{label:"Contract Paid",value:cm.c.p+cm.i.p,sub:"zaplaceno, akt. month",color:"#22c55e"}),
+React.createElement(Card,{label:"Storno  -  "+cm.l,value:tl,sub:(ptl>0?(tl>ptl?"+":"")+ ((tl/ptl-1)*100).toFixed(0)+"%":"N/A")+" vs "+pm.l,color:COL.lost})),
 
 React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:24}},
-React.createElement(Chart,{title:"Carvago â ObjednÃ¡vky po mÄsÃ­cÃ­ch",data:fd,dk:"c",lk:"cl"}),
-React.createElement(Chart,{title:"Instamotion â ObjednÃ¡vky po mÄsÃ­cÃ­ch",data:id,dk:"i",lk:"il"})),
+React.createElement(Chart,{title:"Carvago  -  Orders by Month",data:fd,dk:"c",lk:"cl"}),
+React.createElement(Chart,{title:"Instamotion  -  Orders by Month",data:id,dk:"i",lk:"il"})),
 
 React.createElement("div",{style:{marginTop:24,padding:"12px 0",borderTop:"1px solid #e5e7eb",fontSize:11,color:COL.lt,display:"flex",justifyContent:"space-between"}},
-React.createElement("span",null,"Zdroj: Salesforce | 6 856 zÃ¡znamÅ¯ | 6 309 aktivnÃ­ch + 547 Lost | 1/2024 â 3/2026"),
-React.createElement("span",null,"Paid Date â Contract Paid | Jen Accepted Date â Contract Accepted | Lost Date â Storno"))));
+React.createElement("span",null,"Source: Salesforce | 6 856 records 6 309 active + 547 Lost | 1/2024  -  3/2026"),
+React.createElement("span",null,"Paid Date => Contract Paid | Jen Accepted Date => Contract Accepted | Lost Date => Storno"))));
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Dashboard));
