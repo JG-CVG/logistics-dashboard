@@ -115,7 +115,7 @@ sub&&React.createElement("div",{style:{fontSize:11,color:COL.lt,marginTop:2}},su
 
 function Dashboard(){
 const[tr,setTr]=useState(27);
-const fd=useMemo(()=>D.slice(Math.max(0,D.length-tr)),[tr]);
+const fd=useMemo(()=>D.slice(Math.max(0,D.length-tr)).slice().reverse(),[tr]);
 const cm=D[D.length-1],pm=D[D.length-2];
 const tc=cm.c.p+cm.c.a,ti=cm.i.p+cm.i.a;
 const ptc=pm.c.p+pm.c.a,pti=pm.i.p+pm.i.a;
