@@ -141,8 +141,8 @@ React.createElement(Card,{label:"Contract Paid",value:cm.c.p+cm.i.p,sub:"paid, c
 React.createElement(Card,{label:"Storno -"+cm.l,value:tl,sub:(ptl>0?(tl>ptl?"+":"")+ ((tl/ptl-1)*100).toFixed(0)+"%":"N/A")+" vs "+pm.l,color:COL.lost})),
 
 React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:24}},
-React.createElement(Chart,{title:"Carvago - Orders by Month",data:fd,dk:"c",lk:"cl"}),
-React.createElement(Chart,{title:"Instamotion - Orders by Month",data:id,dk:"i",lk:"il"})),
+React.createElement(Chart,{title:"Carvago - Orders by Month | Data: "+cm.l,data:fd,dk:"c",lk:"cl"}),
+React.createElement(Chart,{title:"Instamotion - Orders by Month | Data: "+cm.l,data:id,dk:"i",lk:"il"})),
 
 React.createElement("div",{style:{marginTop:24,padding:"12px 0",borderTop:"1px solid #e5e7eb",fontSize:11,color:COL.lt,display:"flex",justifyContent:"space-between"}},
 React.createElement("span",null,"Source: Salesforce | 6,856 records | 6,309 active + 547 Lost | 1/2024 - 3/2026"),
