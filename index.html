@@ -27,16 +27,19 @@ const API_URL = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?sort%5B0%5D%
 
 // === TOKEN MANAGEMENT ===
 function getToken() {
-  const params = new URLSearchParams(window.location.search);
-  const urlToken = params.get('token');
-  if (urlToken) {
-    localStorage.setItem('airtable_dashboard_token', urlToken);
-    // Remove token from URL for security
-    const cleanUrl = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, cleanUrl);
-    return urlToken;
+  if (false) return null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    if (urlToken) {
+      try { localStorage.setItem('airtable_dashboard_token', urlToken); } catch(e) {}
+      try { window.history.replaceState({}, document.title, window.location.origin + window.location.pathname); } catch(e) {}
+      return urlToken;
+    }
+    return localStorage.getItem('airtable_dashboard_token');
+  } catch(e) {
+    return null;
   }
-  return localStorage.getItem('airtable_dashboard_token');
 }
 
 // === COLORS ===
@@ -115,17 +118,30 @@ const Card = ({title, value, sub, color}) => (
 );
 
 // === CUSTOM TOOLTIPS ===
-const CTooltip = ({active,payload,label}) => {
+const CTooltip = ({active,payload,label,periodTotals}) => {
   if(!active||!payload) return null;
-  const t = payload.reduce((s,p)=>s+(p.value||0),0);
+  const monthTotal = payload.reduce((s,p)=>s+(p.value||0),0);
+  const periodGrand = periodTotals ? Object.values(periodTotals).reduce((s,v)=>s+v,0) : 0;
   return (
-    <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)'}}>
-      <div style={{fontWeight:600,marginBottom:6}}>{label}</div>
-      {payload.map((p,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',gap:16,marginBottom:2}}>
-        <span style={{color:p.color}}>{p.name}</span><span style={{fontWeight:600}}>{p.value}</span>
-      </div>)}
+    <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)',minWidth:230}}>
+      <div style={{fontWeight:700,marginBottom:6,borderBottom:'1px solid #f3f4f6',paddingBottom:4}}>{label}</div>
+      {payload.map((p,i) => {
+        const pctMonth = monthTotal ? Math.round(p.value/monthTotal*100) : 0;
+        const pctPeriod = periodTotals && periodGrand ? Math.round((periodTotals[p.dataKey]||0)/periodGrand*100) : null;
+        return (
+          <div key={i} style={{marginBottom:5}}>
+            <div style={{display:'flex',justifyContent:'space-between',gap:12}}>
+              <span style={{color:p.color,fontWeight:600}}>{p.name}</span>
+              <span><b>{p.value}</b> <span style={{color:'#6b7280'}}>({pctMonth}% měs.)</span></span>
+            </div>
+            {pctPeriod!==null && <div style={{fontSize:10,color:'#9ca3af',textAlign:'right'}}>
+              Σ {periodTotals[p.dataKey]} · {pctPeriod}% z celého období
+            </div>}
+          </div>
+        );
+      })}
       <div style={{borderTop:'1px solid #e5e7eb',marginTop:4,paddingTop:4,fontWeight:700,display:'flex',justifyContent:'space-between'}}>
-        <span>Total</span><span>{t}</span>
+        <span>Měsíc celkem</span><span>{monthTotal}</span>
       </div>
     </div>
   );
@@ -146,43 +162,100 @@ const LTooltip = ({active,payload,label}) => {
   );
 };
 
+// === STACKED LABEL ===
+const StackLabel = ({x,y,width,value}) => {
+  if(!value) return null;
+  return <text x={x+width/2} y={y-4} textAnchor="middle" fontSize={9} fill="#374151">{value}</text>;
+};
+
 // === CHART COMPONENT ===
-const Chart = ({data, title, paidKey, accKey, lostKey, maxVal}) => (
+const Chart = ({data, title, paidKey, accKey, lostKey, maxVal}) => {
+  const reversed = [...data].reverse();
+  // Součty za celé zobrazené období
+  const periodTotals = {
+    [paidKey]: data.reduce((s,d)=>s+(d[paidKey]||0),0),
+    [accKey]:  data.reduce((s,d)=>s+(d[accKey]||0),0),
+    [lostKey]: data.reduce((s,d)=>s+(d[lostKey]||0),0),
+  };
+  return (
   <div style={{background:'#fff',borderRadius:10,padding:20,marginBottom:20,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
     <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>{title}</h2>
-    <ResponsiveContainer width="100%" height={Math.max(data.length*28,200)}>
-      <BarChart data={[...data].reverse()} layout="vertical" margin={{left:10,right:30,top:0,bottom:0}}>
-        <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
-        <XAxis type="number" domain={[0,maxVal||'auto']} fontSize={11}/>
-        <YAxis type="category" dataKey="m" width={55} fontSize={11} tick={{fill:'#374151'}}/>
-        <Tooltip content={<CTooltip/>}/>
+    <ResponsiveContainer width="100%" height={360}>
+      <BarChart data={reversed} margin={{left:0,right:10,top:20,bottom:5}}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+        <XAxis dataKey="m" fontSize={11} tick={{fill:'#374151'}} interval={0} angle={-45} textAnchor="end" height={50}/>
+        <YAxis domain={[0,maxVal||'auto']} fontSize={11}/>
+        <Tooltip content={<CTooltip periodTotals={periodTotals}/>}/>
         <Legend wrapperStyle={{fontSize:12}}/>
-        <Bar dataKey={paidKey} name="Contract Paid" stackId="a" fill={C.paid} radius={[0,0,0,0]}/>
-        <Bar dataKey={accKey} name="Contract Accepted" stackId="a" fill={C.acc}/>
-        <Bar dataKey={lostKey} name="Storno (Lost)" stackId="a" fill={C.lost} radius={[0,4,4,0]}/>
+        <Bar dataKey={paidKey} name="Contract Paid" stackId="a" fill={C.paid}
+          label={({x,y,width,height,index}) => {
+            const v = reversed[index]?.[paidKey]||0;
+            if(!v||height<14) return null;
+            return <text x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#fff" fontWeight={600}>{v}</text>;
+          }}
+        />
+        <Bar dataKey={accKey} name="Contract Accepted" stackId="a" fill={C.acc}
+          label={({x,y,width,height,index}) => {
+            const v = reversed[index]?.[accKey]||0;
+            if(!v||height<14) return null;
+            return <text x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#fff" fontWeight={600}>{v}</text>;
+          }}
+        />
+        <Bar dataKey={lostKey} name="Storno (Lost)" stackId="a" fill={C.lost} radius={[4,4,0,0]}
+          label={({x,y,width,height,index}) => {
+            const d = reversed[index];
+            if(!d) return null;
+            const vLost = d[lostKey]||0;
+            const total = (d[paidKey]||0)+(d[accKey]||0)+vLost;
+            const parts = [];
+            if(vLost && height>=14)
+              parts.push(<text key="v" x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#fff" fontWeight={600}>{vLost}</text>);
+            if(total)
+              parts.push(<text key="t" x={x+width/2} y={y-5} textAnchor="middle" fontSize={10} fill="#374151" fontWeight={700}>{total}</text>);
+            return parts.length ? <g>{parts}</g> : null;
+          }}
+        />
       </BarChart>
     </ResponsiveContainer>
   </div>
-);
+  );
+};
+
+// === TOTAL LABEL FOR LOST CHART ===
+const TotalLabel = ({x,y,width,height,value,index,data,prefix}) => {
+  if(!data||!data[index]) return null;
+  const total = LOST_KEYS.reduce((s,k)=>s+(data[index][`${prefix}_${k}`]||0),0);
+  if(!total) return null;
+  // Only show on top-most bar segment
+  const isLast = LOST_KEYS.findLast(k => (data[index][`${prefix}_${k}`]||0) > 0);
+  const thisKey = `${prefix}_${LOST_KEYS[LOST_KEYS.length-1]}`;
+  // Show label on the last bar in stack
+  return <text x={x+width/2} y={y-4} textAnchor="middle" fontSize={9} fill="#374151">{total}</text>;
+};
 
 // === LOST CHART COMPONENT ===
-const LostChart = ({data, title, prefix}) => (
+const LostChart = ({data, title, prefix}) => {
+  const reversed = [...data].reverse();
+  return (
   <div style={{background:'#fff',borderRadius:10,padding:20,marginBottom:20,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
     <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>{title}</h2>
-    <ResponsiveContainer width="100%" height={Math.max(data.length*28,200)}>
-      <BarChart data={[...data].reverse()} layout="vertical" margin={{left:10,right:30,top:0,bottom:0}}>
-        <CartesianGrid strokeDasharray="3 3" horizontal={false}/>
-        <XAxis type="number" fontSize={11}/>
-        <YAxis type="category" dataKey="m" width={55} fontSize={11} tick={{fill:'#374151'}}/>
+    <ResponsiveContainer width="100%" height={360}>
+      <BarChart data={reversed} margin={{left:0,right:10,top:20,bottom:5}}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+        <XAxis dataKey="m" fontSize={11} tick={{fill:'#374151'}} interval={0} angle={-45} textAnchor="end" height={50}/>
+        <YAxis fontSize={11}/>
         <Tooltip content={<LTooltip/>}/>
         <Legend wrapperStyle={{fontSize:11}}/>
         {LOST_KEYS.map((k,i) => (
-          <Bar key={k} dataKey={`${prefix}_${k}`} name={LOST_LABELS[k]} stackId="a" fill={LC[i]} radius={i===LOST_KEYS.length-1?[0,4,4,0]:[0,0,0,0]}/>
+          <Bar key={k} dataKey={`${prefix}_${k}`} name={LOST_LABELS[k]} stackId="a" fill={LC[i]}
+            radius={i===LOST_KEYS.length-1?[4,4,0,0]:[0,0,0,0]}
+          />
         ))}
       </BarChart>
     </ResponsiveContainer>
   </div>
-);
+  );
+};
 
 // === MAIN DASHBOARD ===
 const Dashboard = ({rawData}) => {
@@ -294,56 +367,77 @@ const Dashboard = ({rawData}) => {
   );
 };
 
+// === TEST DATA (for preview — will be replaced by Airtable fetch in production) ===
+const TEST_DATA = [
+{id:"r0",fields:{Label:"1/2024",cp:154,ca:0,ip:0,ia:0,cl:5,il:0,cl_car_not_available:2,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:3,cl_deal_cancelled:0,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r1",fields:{Label:"2/2024",cp:215,ca:0,ip:0,ia:0,cl:5,il:0,cl_car_not_available:3,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:1,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r2",fields:{Label:"3/2024",cp:250,ca:0,ip:0,ia:0,cl:6,il:0,cl_car_not_available:2,cl_car_was_sold:1,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:1,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:2,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r3",fields:{Label:"4/2024",cp:253,ca:0,ip:0,ia:0,cl:11,il:0,cl_car_not_available:5,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:4,cl_customer_withdrew:1,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r4",fields:{Label:"5/2024",cp:301,ca:0,ip:0,ia:0,cl:10,il:0,cl_car_not_available:6,cl_car_was_sold:2,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:0,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:1,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r5",fields:{Label:"6/2024",cp:253,ca:0,ip:0,ia:0,cl:6,il:0,cl_car_not_available:3,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:3,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r6",fields:{Label:"7/2024",cp:238,ca:0,ip:0,ia:0,cl:13,il:0,cl_car_not_available:6,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:3,cl_deal_cancelled:2,cl_customer_withdrew:1,cl_car_issues:0,cl_contract_not_paid:1,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r7",fields:{Label:"8/2024",cp:197,ca:0,ip:0,ia:0,cl:13,il:0,cl_car_not_available:6,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:3,cl_customer_withdrew:1,cl_car_issues:2,cl_contract_not_paid:1,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r8",fields:{Label:"9/2024",cp:218,ca:0,ip:0,ia:0,cl:11,il:0,cl_car_not_available:3,cl_car_was_sold:1,cl_sales_lifecycle:0,cl_personal_reasons:2,cl_deal_cancelled:2,cl_customer_withdrew:1,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:1,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r9",fields:{Label:"10/2024",cp:218,ca:0,ip:0,ia:0,cl:13,il:0,cl_car_not_available:4,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:7,cl_customer_withdrew:0,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r10",fields:{Label:"11/2024",cp:214,ca:0,ip:0,ia:0,cl:8,il:0,cl_car_not_available:2,cl_car_was_sold:1,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:3,cl_customer_withdrew:1,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r11",fields:{Label:"12/2024",cp:163,ca:0,ip:0,ia:0,cl:16,il:0,cl_car_not_available:9,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:3,cl_customer_withdrew:0,cl_car_issues:2,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:1,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r12",fields:{Label:"1/2025",cp:174,ca:0,ip:0,ia:0,cl:13,il:0,cl_car_not_available:8,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:4,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r13",fields:{Label:"2/2025",cp:172,ca:0,ip:0,ia:0,cl:12,il:0,cl_car_not_available:4,cl_car_was_sold:1,cl_sales_lifecycle:0,cl_personal_reasons:2,cl_deal_cancelled:3,cl_customer_withdrew:0,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:1,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r14",fields:{Label:"3/2025",cp:216,ca:0,ip:0,ia:0,cl:7,il:0,cl_car_not_available:3,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:2,cl_customer_withdrew:0,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r15",fields:{Label:"4/2025",cp:223,ca:0,ip:0,ia:0,cl:9,il:0,cl_car_not_available:6,cl_car_was_sold:0,cl_sales_lifecycle:0,cl_personal_reasons:2,cl_deal_cancelled:1,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r16",fields:{Label:"5/2025",cp:189,ca:0,ip:0,ia:0,cl:11,il:0,cl_car_not_available:6,cl_car_was_sold:1,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:1,cl_customer_withdrew:0,cl_car_issues:2,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:1,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r17",fields:{Label:"6/2025",cp:189,ca:0,ip:6,ia:0,cl:7,il:2,cl_car_not_available:4,cl_car_was_sold:1,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:1,cl_customer_withdrew:0,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:1,cl_other:0,il_car_not_available:0,il_car_was_sold:1,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:1,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r18",fields:{Label:"7/2025",cp:192,ca:0,ip:55,ia:0,cl:47,il:11,cl_car_not_available:27,cl_car_was_sold:6,cl_sales_lifecycle:0,cl_personal_reasons:1,cl_deal_cancelled:5,cl_customer_withdrew:1,cl_car_issues:2,cl_contract_not_paid:0,cl_chose_another_carvago_car:3,cl_other:2,il_car_not_available:0,il_car_was_sold:2,il_sales_lifecycle:0,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:4,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:5}},
+{id:"r19",fields:{Label:"8/2025",cp:158,ca:0,ip:41,ia:0,cl:27,il:12,cl_car_not_available:4,cl_car_was_sold:13,cl_sales_lifecycle:1,cl_personal_reasons:0,cl_deal_cancelled:5,cl_customer_withdrew:2,cl_car_issues:2,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:0,il_car_was_sold:1,il_sales_lifecycle:2,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:3,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:6}},
+{id:"r20",fields:{Label:"9/2025",cp:232,ca:0,ip:52,ia:0,cl:26,il:6,cl_car_not_available:6,cl_car_was_sold:16,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:0,cl_customer_withdrew:1,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:2,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:5,il_personal_reasons:0,il_deal_cancelled:1,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r21",fields:{Label:"10/2025",cp:255,ca:0,ip:65,ia:0,cl:32,il:7,cl_car_not_available:6,cl_car_was_sold:9,cl_sales_lifecycle:2,cl_personal_reasons:1,cl_deal_cancelled:2,cl_customer_withdrew:5,cl_car_issues:3,cl_contract_not_paid:0,cl_chose_another_carvago_car:2,cl_other:2,il_car_not_available:3,il_car_was_sold:0,il_sales_lifecycle:3,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:1,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r22",fields:{Label:"11/2025",cp:251,ca:0,ip:81,ia:0,cl:21,il:13,cl_car_not_available:7,cl_car_was_sold:8,cl_sales_lifecycle:2,cl_personal_reasons:0,cl_deal_cancelled:3,cl_customer_withdrew:0,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:0,il_car_not_available:3,il_car_was_sold:0,il_sales_lifecycle:8,il_personal_reasons:1,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:1,il_other:0}},
+{id:"r23",fields:{Label:"12/2025",cp:180,ca:0,ip:45,ia:0,cl:22,il:7,cl_car_not_available:4,cl_car_was_sold:7,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:2,cl_customer_withdrew:2,cl_car_issues:5,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:2,il_car_not_available:0,il_car_was_sold:0,il_sales_lifecycle:7,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}},
+{id:"r24",fields:{Label:"1/2026",cp:228,ca:0,ip:53,ia:0,cl:24,il:27,cl_car_not_available:11,cl_car_was_sold:6,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:1,cl_customer_withdrew:1,cl_car_issues:0,cl_contract_not_paid:0,cl_chose_another_carvago_car:1,cl_other:4,il_car_not_available:2,il_car_was_sold:0,il_sales_lifecycle:19,il_personal_reasons:1,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:1,il_chose_another_carvago_car:3,il_other:1}},
+{id:"r25",fields:{Label:"2/2026",cp:204,ca:1,ip:65,ia:0,cl:25,il:15,cl_car_not_available:9,cl_car_was_sold:4,cl_sales_lifecycle:0,cl_personal_reasons:0,cl_deal_cancelled:6,cl_customer_withdrew:1,cl_car_issues:3,cl_contract_not_paid:0,cl_chose_another_carvago_car:1,cl_other:1,il_car_not_available:3,il_car_was_sold:0,il_sales_lifecycle:11,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:1,il_other:0}},
+{id:"r26",fields:{Label:"3/2026",cp:189,ca:15,ip:77,ia:13,cl:36,il:11,cl_car_not_available:7,cl_car_was_sold:10,cl_sales_lifecycle:2,cl_personal_reasons:0,cl_deal_cancelled:2,cl_customer_withdrew:2,cl_car_issues:1,cl_contract_not_paid:0,cl_chose_another_carvago_car:0,cl_other:12,il_car_not_available:2,il_car_was_sold:0,il_sales_lifecycle:9,il_personal_reasons:0,il_deal_cancelled:0,il_customer_withdrew:0,il_car_issues:0,il_contract_not_paid:0,il_chose_another_carvago_car:0,il_other:0}}
+];
+
 // === APP ROOT ===
+// USE_TEST_DATA=false for production (Airtable API fetch)
+const USE_TEST_DATA = false;
+
 const App = () => {
-  const [token, setToken] = useState(null);
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(USE_TEST_DATA ? TEST_DATA : null);
+  const [loading, setLoading] = useState(!USE_TEST_DATA);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    if (USE_TEST_DATA) return;
     const t = getToken();
     setToken(t);
-    if (!t) {
-      setLoading(false);
-      return;
-    }
+    if (!t) { setLoading(false); return; }
     fetchData(t);
   }, []);
 
   const fetchData = async (t) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
-      const resp = await fetch(API_URL, {
-        headers: {'Authorization': `Bearer ${t}`}
-      });
+      const resp = await fetch(API_URL, {headers:{'Authorization':`Bearer ${t}`}});
       if (!resp.ok) {
-        if (resp.status === 401 || resp.status === 403) {
-          throw new Error('Neplatný nebo expirovaný token. Zadejte nový token.');
-        }
-        throw new Error(`Chyba API: ${resp.status} ${resp.statusText}`);
+        if (resp.status===401||resp.status===403) throw new Error('Neplatny token.');
+        throw new Error(`API error: ${resp.status}`);
       }
       const json = await resp.json();
       setData(json.records);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch(err) { setError(err.message); }
+    finally { setLoading(false); }
   };
 
   const handleReset = () => {
-    localStorage.removeItem('airtable_dashboard_token');
-    setToken(null);
-    setData(null);
-    setError(null);
-    setLoading(false);
+    try{localStorage.removeItem('airtable_dashboard_token');}catch(e){}
+    setToken(null); setData(null); setError(null); setLoading(false);
   };
 
-  if (!token && !loading) return <TokenScreen/>;
+  if (!USE_TEST_DATA && !token && !loading) return <TokenScreen/>;
   if (loading) return <LoadingScreen/>;
-  if (error) return <ErrorScreen msg={error} onRetry={() => fetchData(token)} onReset={handleReset}/>;
+  if (error) return <ErrorScreen msg={error} onRetry={()=>fetchData(token)} onReset={handleReset}/>;
   if (data) return <Dashboard rawData={data}/>;
   return null;
 };
