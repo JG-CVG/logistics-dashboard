@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carvago Order Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f3f4f6;color:#374151}
+body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#EDF1F8;color:#1F2B59}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -43,7 +45,7 @@ function getToken() {
 }
 
 // === COLORS ===
-const C = {paid:'#86c5a0', acc:'#ef8533', lost:'#3b82f6'};
+const C = {paid:'#3E47DD', acc:'#7B87A8', lost:'#ef4444'};
 const LC = ['#ef4444','#f97316','#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4','#6366f1','#a855f7','#ec4899'];
 const LOST_KEYS = ['car_not_available','car_was_sold','sales_lifecycle','personal_reasons','deal_cancelled','customer_withdrew','car_issues','contract_not_paid','chose_another_carvago_car','other'];
 const LOST_LABELS = {'car_not_available':'Car not available','car_was_sold':'Car was sold','sales_lifecycle':'Sales Lifecycle','personal_reasons':'Personal reasons','deal_cancelled':'Deal cancelled','customer_withdrew':'Customer withdrew','car_issues':'Car issues','contract_not_paid':'Contract not paid','chose_another_carvago_car':'Chose another Carvago car','other':'Other'};
@@ -59,12 +61,16 @@ const TokenScreen = () => {
     }
   };
   return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f3f4f6'}}>
-      <div style={{background:'#fff',borderRadius:12,padding:40,maxWidth:480,width:'100%',boxShadow:'0 4px 24px rgba(0,0,0,.08)',textAlign:'center'}}>
-        <h1 style={{fontSize:24,fontWeight:700,marginBottom:8,color:'#111827'}}>Carvago Order Dashboard</h1>
-        <p style={{color:'#6b7280',marginBottom:24,fontSize:14,lineHeight:1.5}}>
-          Pro přístup k dashboardu zadejte Airtable API token.<br/>
-          Nebo přidejte token do URL: <code style={{background:'#f3f4f6',padding:'2px 6px',borderRadius:4,fontSize:12}}>?token=váš_token</code>
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#EDF1F8'}}>
+      <div style={{marginBottom:24,textAlign:'center'}}>
+        <span style={{color:'#1F2B59',fontWeight:700,fontSize:28,letterSpacing:'-0.5px'}}>carvago.</span>
+        <span style={{color:'#7B87A8',fontSize:16,marginLeft:6}}>/ logistics</span>
+      </div>
+      <div style={{background:'#fff',borderRadius:8,padding:40,maxWidth:480,width:'100%',boxShadow:'0 2px 8px rgba(31,43,89,.08)',textAlign:'center'}}>
+        <h1 style={{fontSize:20,fontWeight:700,marginBottom:8,color:'#1F2B59'}}>Order Dashboard</h1>
+        <p style={{color:'#7B87A8',marginBottom:24,fontSize:13,lineHeight:1.6}}>
+          Pro přístup zadejte Airtable API token.<br/>
+          Nebo přidejte token do URL: <code style={{background:'#EDF1F8',padding:'2px 6px',borderRadius:4,fontSize:12,color:'#3E47DD'}}>?token=váš_token</code>
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -72,9 +78,9 @@ const TokenScreen = () => {
             value={input}
             onChange={e=>setInput(e.target.value)}
             placeholder="patXXX..."
-            style={{width:'100%',padding:'10px 14px',border:'1px solid #d1d5db',borderRadius:8,fontSize:14,marginBottom:12,outline:'none'}}
+            style={{width:'100%',padding:'10px 14px',border:'1.5px solid #D0D8EC',borderRadius:8,fontSize:14,marginBottom:12,outline:'none',color:'#1F2B59',fontFamily:'inherit'}}
           />
-          <button type="submit" style={{width:'100%',padding:'10px 14px',background:'#3b82f6',color:'#fff',border:'none',borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer'}}>
+          <button type="submit" style={{width:'100%',padding:'10px 14px',background:'#3E47DD',color:'#fff',border:'none',borderRadius:8,fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
             Načíst dashboard
           </button>
         </form>
@@ -85,10 +91,10 @@ const TokenScreen = () => {
 
 // === LOADING SCREEN ===
 const LoadingScreen = () => (
-  <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f3f4f6'}}>
+  <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#EDF1F8'}}>
     <div style={{textAlign:'center'}}>
-      <div style={{width:40,height:40,border:'4px solid #e5e7eb',borderTopColor:'#3b82f6',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 16px'}}></div>
-      <p style={{color:'#6b7280',fontSize:14}}>Načítám data z Airtable...</p>
+      <div style={{width:40,height:40,border:'4px solid #D0D8EC',borderTopColor:'#3E47DD',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 16px'}}></div>
+      <p style={{color:'#7B87A8',fontSize:14}}>Načítám data z Airtable...</p>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   </div>
@@ -96,13 +102,13 @@ const LoadingScreen = () => (
 
 // === ERROR SCREEN ===
 const ErrorScreen = ({msg, onRetry, onReset}) => (
-  <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#f3f4f6'}}>
-    <div style={{background:'#fff',borderRadius:12,padding:40,maxWidth:480,width:'100%',boxShadow:'0 4px 24px rgba(0,0,0,.08)',textAlign:'center'}}>
-      <h2 style={{fontSize:20,fontWeight:700,marginBottom:8,color:'#ef4444'}}>Chyba při načítání dat</h2>
-      <p style={{color:'#6b7280',marginBottom:20,fontSize:14}}>{msg}</p>
+  <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',background:'#EDF1F8'}}>
+    <div style={{background:'#fff',borderRadius:8,padding:40,maxWidth:480,width:'100%',boxShadow:'0 2px 8px rgba(31,43,89,.08)',textAlign:'center'}}>
+      <h2 style={{fontSize:18,fontWeight:700,marginBottom:8,color:'#ef4444'}}>Chyba při načítání dat</h2>
+      <p style={{color:'#7B87A8',marginBottom:20,fontSize:13}}>{msg}</p>
       <div style={{display:'flex',gap:8,justifyContent:'center'}}>
-        <button onClick={onRetry} style={{padding:'8px 20px',background:'#3b82f6',color:'#fff',border:'none',borderRadius:8,fontSize:14,cursor:'pointer'}}>Zkusit znovu</button>
-        <button onClick={onReset} style={{padding:'8px 20px',background:'#6b7280',color:'#fff',border:'none',borderRadius:8,fontSize:14,cursor:'pointer'}}>Změnit token</button>
+        <button onClick={onRetry} style={{padding:'8px 20px',background:'#3E47DD',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Zkusit znovu</button>
+        <button onClick={onReset} style={{padding:'8px 20px',background:'#7B87A8',color:'#fff',border:'none',borderRadius:8,fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>Změnit token</button>
       </div>
     </div>
   </div>
@@ -110,10 +116,10 @@ const ErrorScreen = ({msg, onRetry, onReset}) => (
 
 // === CARD COMPONENT ===
 const Card = ({title, value, sub, color}) => (
-  <div style={{background:'#fff',borderRadius:10,padding:'14px 18px',flex:1,minWidth:160,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
-    <div style={{fontSize:12,color:'#6b7280',marginBottom:4}}>{title}</div>
-    <div style={{fontSize:28,fontWeight:700,color:color||'#111827'}}>{value}</div>
-    {sub && <div style={{fontSize:11,color:sub.startsWith('+') ? '#22c55e' : sub.startsWith('-') ? '#ef4444' : '#6b7280',marginTop:2}}>{sub}</div>}
+  <div style={{background:'#fff',borderRadius:8,padding:'16px 20px',flex:1,minWidth:160,boxShadow:'0 2px 8px rgba(31,43,89,.08)',borderTop:`3px solid ${color||'#3E47DD'}`}}>
+    <div style={{fontSize:11,color:'#7B87A8',marginBottom:6,fontWeight:500,textTransform:'uppercase',letterSpacing:'0.5px'}}>{title}</div>
+    <div style={{fontSize:30,fontWeight:700,color:'#1F2B59'}}>{value}</div>
+    {sub && <div style={{fontSize:11,color:sub.startsWith('+') ? '#22c55e' : sub.startsWith('-') ? '#ef4444' : '#7B87A8',marginTop:4,fontWeight:500}}>{sub}</div>}
   </div>
 );
 
@@ -169,7 +175,7 @@ const StackLabel = ({x,y,width,value}) => {
 };
 
 // === CHART COMPONENT ===
-const Chart = ({data, title, paidKey, accKey, lostKey, maxVal}) => {
+const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal}) => {
   const reversed = [...data].reverse();
   // Součty za celé zobrazené období
   const periodTotals = {
@@ -178,8 +184,11 @@ const Chart = ({data, title, paidKey, accKey, lostKey, maxVal}) => {
     [lostKey]: data.reduce((s,d)=>s+(d[lostKey]||0),0),
   };
   return (
-  <div style={{background:'#fff',borderRadius:10,padding:20,marginBottom:20,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
-    <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>{title}</h2>
+  <div style={{background:'#fff',borderRadius:8,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:16}}>
+      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+      {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
+    </div>
     <ResponsiveContainer width="100%" height={360}>
       <BarChart data={reversed} margin={{left:0,right:10,top:20,bottom:5}}>
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
@@ -234,11 +243,14 @@ const TotalLabel = ({x,y,width,height,value,index,data,prefix}) => {
 };
 
 // === LOST CHART COMPONENT ===
-const LostChart = ({data, title, prefix}) => {
+const LostChart = ({data, title, subtitle, prefix}) => {
   const reversed = [...data].reverse();
   return (
-  <div style={{background:'#fff',borderRadius:10,padding:20,marginBottom:20,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
-    <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>{title}</h2>
+  <div style={{background:'#fff',borderRadius:8,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:16}}>
+      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+      {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
+    </div>
     <ResponsiveContainer width="100%" height={360}>
       <BarChart data={reversed} margin={{left:0,right:10,top:20,bottom:5}}>
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
@@ -316,52 +328,55 @@ const Dashboard = ({rawData}) => {
   const instaLost = ild.filter(d => instaMonths.has(d.m));
 
   return (
-    <div style={{maxWidth:1100,margin:'0 auto',padding:'24px 16px'}}>
-      {/* Header */}
-      <div style={{marginBottom:20}}>
-        <h1 style={{fontSize:22,fontWeight:700,color:'#111827'}}>Carvago Order Dashboard</h1>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
-          <span style={{fontSize:12,color:'#6b7280'}}>Salesforce data | {last?.m} (running)</span>
-          <div style={{display:'flex',gap:4}}>
-            {buttons.map((b, i) => (
-              <button key={i} onClick={() => setRange(b)}
-                style={{padding:'4px 12px',fontSize:12,fontWeight:range===b?600:400,
-                  background:range===b?'#3b82f6':'#e5e7eb',color:range===b?'#fff':'#374151',
-                  border:'none',borderRadius:6,cursor:'pointer'}}>
-                {btnLabels[i]}
-              </button>
-            ))}
-          </div>
+    <div style={{minHeight:'100vh',background:'#EDF1F8'}}>
+      {/* Navbar */}
+      <div style={{background:'#1F2B59',padding:'0 32px',display:'flex',alignItems:'center',justifyContent:'space-between',height:56,boxShadow:'0 2px 8px rgba(31,43,89,.2)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{color:'#fff',fontWeight:700,fontSize:20,letterSpacing:'-0.5px'}}>carvago.</span>
+          <span style={{color:'rgba(255,255,255,0.4)',fontSize:14,marginLeft:4}}>/ logistics</span>
+        </div>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          <span style={{fontSize:12,color:'rgba(255,255,255,0.5)',marginRight:8}}>{last?.m} (running)</span>
+          {buttons.map((b, i) => (
+            <button key={i} onClick={() => setRange(b)}
+              style={{padding:'5px 14px',fontSize:12,fontWeight:600,
+                background:range===b?'#3E47DD':'rgba(255,255,255,0.1)',
+                color:'#fff',border:'none',borderRadius:6,cursor:'pointer',
+                transition:'background 0.15s'}}>
+              {btnLabels[i]}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div style={{display:'flex',gap:12,marginBottom:20,flexWrap:'wrap'}}>
-        <Card title={`Carvago - ${last?.m}`} value={cTotal} sub={pct(cTotal, cPrev)}/>
-        {hasInsta && <Card title={`Instamotion - ${last?.m}`} value={iTotal} sub={pct(iTotal, iPrev)}/>}
-        <Card title="Contract Accepted" value={last ? last.ca + last.ia : 0} sub="not paid, current month" color={C.acc}/>
-        <Card title="Contract Paid" value={last ? last.cp + last.ip : 0} sub="paid, current month" color={C.paid}/>
-        <Card title={`Storno - ${last?.m}`} value={sTotal} sub={pct(sTotal, sPrev)} color={C.lost}/>
-      </div>
+      <div style={{maxWidth:1160,margin:'0 auto',padding:'24px 24px 40px'}}>
+        {/* Summary Cards */}
+        <div style={{display:'flex',gap:12,marginBottom:24,flexWrap:'wrap'}}>
+          <Card title={`Carvago · ${last?.m}`} value={cTotal} sub={pct(cTotal, cPrev)} color='#3E47DD'/>
+          {hasInsta && <Card title={`Instamotion · ${last?.m}`} value={iTotal} sub={pct(iTotal, iPrev)} color='#3E47DD'/>}
+          <Card title="Contract Accepted" value={last ? last.ca + last.ia : 0} sub="not paid, current month" color={C.acc}/>
+          <Card title="Contract Paid" value={last ? last.cp + last.ip : 0} sub="paid, current month" color={C.paid}/>
+          <Card title={`Storno · ${last?.m}`} value={sTotal} sub={pct(sTotal, sPrev)} color={C.lost}/>
+        </div>
 
-      {/* Carvago Orders Chart */}
-      <Chart data={data} title={`Carvago - Orders by Month | Updated: ${updated}`}
-        paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMax * 1.1)}/>
+        {/* Carvago Orders Chart */}
+        <Chart data={data} title={`Carvago — Orders by Month`} subtitle={`Updated ${updated}`}
+          paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMax * 1.1)}/>
 
-      {/* Instamotion Orders Chart */}
-      {hasInsta && <Chart data={instaData} title={`Instamotion - Orders by Month | Updated: ${updated}`}
-        paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMax * 1.1)}/>}
+        {/* Instamotion Orders Chart */}
+        {hasInsta && <Chart data={instaData} title={`Instamotion — Orders by Month`} subtitle={`Updated ${updated}`}
+          paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMax * 1.1)}/>}
 
-      {/* Carvago Lost Reasons Chart */}
-      <LostChart data={cld} title={`Carvago - Lost Orders by Reason | Updated: ${updated}`} prefix="cl"/>
+        {/* Carvago Lost Reasons Chart */}
+        <LostChart data={cld} title={`Carvago — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="cl"/>
 
-      {/* Instamotion Lost Reasons Chart */}
-      {hasInsta && <LostChart data={instaLost} title={`Instamotion - Lost Orders by Reason | Updated: ${updated}`} prefix="il"/>}
+        {/* Instamotion Lost Reasons Chart */}
+        {hasInsta && <LostChart data={instaLost} title={`Instamotion — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="il"/>}
 
-      {/* Footer */}
-      <div style={{textAlign:'center',padding:'16px 0',fontSize:11,color:'#9ca3af',borderTop:'1px solid #e5e7eb',marginTop:12}}>
-        <div>Source: Salesforce | Data loaded dynamically from Airtable</div>
-        <div>Paid Date = Contract Paid | Only Accepted Date = Contract Accepted | Lost Date = Storno</div>
+        {/* Footer */}
+        <div style={{textAlign:'center',paddingTop:20,fontSize:11,color:'#7B87A8',borderTop:'1px solid #D0D8EC'}}>
+          <div>Source: Salesforce · Data from Airtable · Paid Date = Contract Paid · Accepted only = Contract Accepted · Lost Date = Storno</div>
+        </div>
       </div>
     </div>
   );
