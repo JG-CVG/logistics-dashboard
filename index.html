@@ -2299,23 +2299,25 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
   const updated = `${today.getDate()}.${today.getMonth()+1}.${today.getFullYear()}`;
 
   // Transform Airtable records into data arrays
+  const parseLabel = (label) => { const p = (label||'').split('/'); return parseInt(p[1]||0)*100 + parseInt(p[0]||0); };
   const {D, CLD, ILD, hasInsta} = useMemo(() => {
-    const D = rawData.map(r => {
+    const sort = arr => arr.slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
+    const D = sort(rawData.map(r => {
       const f = r.fields;
       return {m: f.Label, cp: f.cp||0, ca: f.ca||0, ip: f.ip||0, ia: f.ia||0, cl: f.cl||0, il: f.il||0};
-    });
-    const CLD = rawData.map(r => {
+    }));
+    const CLD = sort(rawData.map(r => {
       const f = r.fields;
       const o = {m: f.Label};
       LOST_KEYS.forEach(k => o[`cl_${k}`] = f[`cl_${k}`]||0);
       return o;
-    });
-    const ILD = rawData.map(r => {
+    }));
+    const ILD = sort(rawData.map(r => {
       const f = r.fields;
       const o = {m: f.Label};
       LOST_KEYS.forEach(k => o[`il_${k}`] = f[`il_${k}`]||0);
       return o;
-    });
+    }));
     const hasInsta = D.some(d => d.ip > 0 || d.ia > 0 || d.il > 0);
     return {D, CLD, ILD, hasInsta};
   }, [rawData]);
@@ -2360,7 +2362,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
       o.avg_amount = f.avg_amount||0;
       o.count_with_amount = f.count_with_amount||0;
       return o;
-    });
+    }).slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
   }, [caRawData]);
   const caData = CA.slice(-range);
   const lastCA = CA[CA.length - 1];
