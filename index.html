@@ -2685,6 +2685,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
       ['total',...CA_STAGE_KEYS,...CA_REASON_KEYS].forEach(k => o[k] = f[k]||0);
       o.avg_amount = f.avg_amount||0;
       o.count_with_amount = f.count_with_amount||0;
+      o.revenue = f.revenue != null ? f.revenue : null;
       return o;
     }).slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
   }, [caRawData]);
