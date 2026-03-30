@@ -2549,7 +2549,23 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
   const updated = `${today.getDate()}.${today.getMonth()+1}.${today.getFullYear()} ${String(today.getHours()).padStart(2,'0')}:${String(today.getMinutes()).padStart(2,'0')}`;
 
   // Transform Airtable records into data arrays
-  const parseLabel = (label) => { const p = (label||'').split('/'); return parseInt(p[1]||0)*100 + parseInt(p[0]||0); };
+  const parseLabel = (label) => {
+    const s = label || '';
+    if (s.includes('/')) {
+      const p = s.split('/');
+      const y = parseInt(p[1]||0);
+      const year = y < 100 ? 2000 + y : y;
+      return year * 100 + parseInt(p[0]||0);
+    }
+    const MONTHS = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+    const parts = s.split(' ');
+    if (parts.length === 2) {
+      const m = MONTHS[parts[0]] || 0;
+      const y = 2000 + parseInt(parts[1]||0);
+      return y * 100 + m;
+    }
+    return 0;
+  };
   const {D, CLD, ILD, hasInsta} = useMemo(() => {
     const sort = arr => arr.slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
     const D = sort(rawData.map(r => {
