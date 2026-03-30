@@ -73,33 +73,33 @@ const TEST_DATA = [
 
 // === CARAUDIT TEST DATA ===
 const CA_TEST_DATA = [
-{id:"ca0",fields:{Label:"1/24",Month:"1/2024",total:1062,stage_new_ca:0,stage_data_val:275,stage_car_check:461,stage_vin_check:204,stage_awaiting_sel:3,stage_auditor_sel:14,stage_audit_order:72,stage_preparation:32,reason_car_na:321,reason_client:281,reason_car_cond:157,reason_seller:299,reason_auto:0,reason_other:4,avg_amount:165.12,count_with_amount:598}},
-{id:"ca1",fields:{Label:"2/24",Month:"2/2024",total:921,stage_new_ca:0,stage_data_val:104,stage_car_check:506,stage_vin_check:223,stage_awaiting_sel:1,stage_auditor_sel:10,stage_audit_order:55,stage_preparation:20,reason_car_na:325,reason_client:317,reason_car_cond:120,reason_seller:154,reason_auto:0,reason_other:5,avg_amount:165.7,count_with_amount:582}},
-{id:"ca2",fields:{Label:"3/24",Month:"3/2024",total:916,stage_new_ca:4,stage_data_val:165,stage_car_check:442,stage_vin_check:210,stage_awaiting_sel:2,stage_auditor_sel:12,stage_audit_order:64,stage_preparation:10,reason_car_na:310,reason_client:315,reason_car_cond:122,reason_seller:164,reason_auto:0,reason_other:5,avg_amount:163.39,count_with_amount:614}},
-{id:"ca3",fields:{Label:"4/24",Month:"4/2024",total:934,stage_new_ca:20,stage_data_val:158,stage_car_check:487,stage_vin_check:181,stage_awaiting_sel:0,stage_auditor_sel:18,stage_audit_order:50,stage_preparation:18,reason_car_na:313,reason_client:331,reason_car_cond:114,reason_seller:160,reason_auto:0,reason_other:16,avg_amount:163.0,count_with_amount:654}},
-{id:"ca4",fields:{Label:"5/24",Month:"5/2024",total:1049,stage_new_ca:4,stage_data_val:136,stage_car_check:561,stage_vin_check:241,stage_awaiting_sel:0,stage_auditor_sel:20,stage_audit_order:61,stage_preparation:21,reason_car_na:329,reason_client:379,reason_car_cond:127,reason_seller:209,reason_auto:0,reason_other:5,avg_amount:167.69,count_with_amount:735}},
-{id:"ca5",fields:{Label:"6/24",Month:"6/2024",total:763,stage_new_ca:9,stage_data_val:91,stage_car_check:423,stage_vin_check:169,stage_awaiting_sel:0,stage_auditor_sel:11,stage_audit_order:46,stage_preparation:9,reason_car_na:232,reason_client:272,reason_car_cond:127,reason_seller:131,reason_auto:0,reason_other:1,avg_amount:170.62,count_with_amount:596}},
-{id:"ca6",fields:{Label:"7/24",Month:"7/2024",total:775,stage_new_ca:4,stage_data_val:135,stage_car_check:384,stage_vin_check:161,stage_awaiting_sel:0,stage_auditor_sel:16,stage_audit_order:58,stage_preparation:13,reason_car_na:196,reason_client:275,reason_car_cond:151,reason_seller:150,reason_auto:0,reason_other:3,avg_amount:173.4,count_with_amount:559}},
-{id:"ca7",fields:{Label:"8/24",Month:"8/2024",total:644,stage_new_ca:5,stage_data_val:85,stage_car_check:369,stage_vin_check:129,stage_awaiting_sel:0,stage_auditor_sel:10,stage_audit_order:37,stage_preparation:8,reason_car_na:197,reason_client:238,reason_car_cond:98,reason_seller:111,reason_auto:0,reason_other:0,avg_amount:181.66,count_with_amount:469}},
-{id:"ca8",fields:{Label:"9/24",Month:"9/2024",total:826,stage_new_ca:5,stage_data_val:147,stage_car_check:409,stage_vin_check:196,stage_awaiting_sel:0,stage_auditor_sel:11,stage_audit_order:51,stage_preparation:5,reason_car_na:243,reason_client:283,reason_car_cond:146,reason_seller:147,reason_auto:0,reason_other:7,avg_amount:181.76,count_with_amount:550}},
-{id:"ca9",fields:{Label:"10/24",Month:"10/2024",total:854,stage_new_ca:13,stage_data_val:118,stage_car_check:416,stage_vin_check:210,stage_awaiting_sel:0,stage_auditor_sel:19,stage_audit_order:58,stage_preparation:16,reason_car_na:280,reason_client:302,reason_car_cond:101,reason_seller:145,reason_auto:0,reason_other:26,avg_amount:175.43,count_with_amount:597}},
-{id:"ca10",fields:{Label:"11/24",Month:"11/2024",total:759,stage_new_ca:8,stage_data_val:149,stage_car_check:312,stage_vin_check:210,stage_awaiting_sel:0,stage_auditor_sel:16,stage_audit_order:47,stage_preparation:15,reason_car_na:230,reason_client:295,reason_car_cond:106,reason_seller:117,reason_auto:0,reason_other:11,avg_amount:161.44,count_with_amount:492}},
-{id:"ca11",fields:{Label:"12/24",Month:"12/2024",total:626,stage_new_ca:7,stage_data_val:95,stage_car_check:245,stage_vin_check:205,stage_awaiting_sel:0,stage_auditor_sel:20,stage_audit_order:44,stage_preparation:8,reason_car_na:184,reason_client:226,reason_car_cond:91,reason_seller:110,reason_auto:0,reason_other:15,avg_amount:156.29,count_with_amount:382}},
-{id:"ca12",fields:{Label:"1/25",Month:"1/2025",total:760,stage_new_ca:5,stage_data_val:134,stage_car_check:291,stage_vin_check:263,stage_awaiting_sel:0,stage_auditor_sel:16,stage_audit_order:34,stage_preparation:15,reason_car_na:242,reason_client:293,reason_car_cond:122,reason_seller:97,reason_auto:0,reason_other:6,avg_amount:137.59,count_with_amount:374}},
-{id:"ca13",fields:{Label:"2/25",Month:"2/2025",total:709,stage_new_ca:4,stage_data_val:140,stage_car_check:263,stage_vin_check:226,stage_awaiting_sel:3,stage_auditor_sel:23,stage_audit_order:45,stage_preparation:5,reason_car_na:209,reason_client:249,reason_car_cond:101,reason_seller:116,reason_auto:0,reason_other:34,avg_amount:112.93,count_with_amount:365}},
-{id:"ca14",fields:{Label:"3/25",Month:"3/2025",total:799,stage_new_ca:4,stage_data_val:164,stage_car_check:321,stage_vin_check:221,stage_awaiting_sel:0,stage_auditor_sel:35,stage_audit_order:48,stage_preparation:5,reason_car_na:224,reason_client:256,reason_car_cond:124,reason_seller:173,reason_auto:0,reason_other:22,avg_amount:113.68,count_with_amount:400}},
-{id:"ca15",fields:{Label:"4/25",Month:"4/2025",total:784,stage_new_ca:7,stage_data_val:170,stage_car_check:296,stage_vin_check:228,stage_awaiting_sel:3,stage_auditor_sel:38,stage_audit_order:40,stage_preparation:2,reason_car_na:208,reason_client:216,reason_car_cond:162,reason_seller:166,reason_auto:0,reason_other:32,avg_amount:100.11,count_with_amount:379}},
-{id:"ca16",fields:{Label:"5/25",Month:"5/2025",total:820,stage_new_ca:24,stage_data_val:155,stage_car_check:329,stage_vin_check:223,stage_awaiting_sel:14,stage_auditor_sel:35,stage_audit_order:34,stage_preparation:3,reason_car_na:228,reason_client:244,reason_car_cond:115,reason_seller:191,reason_auto:15,reason_other:27,avg_amount:105.89,count_with_amount:394}},
-{id:"ca17",fields:{Label:"6/25",Month:"6/2025",total:990,stage_new_ca:50,stage_data_val:153,stage_car_check:391,stage_vin_check:252,stage_awaiting_sel:45,stage_auditor_sel:39,stage_audit_order:47,stage_preparation:10,reason_car_na:278,reason_client:108,reason_car_cond:137,reason_seller:195,reason_auto:230,reason_other:42,avg_amount:101.08,count_with_amount:442}},
-{id:"ca18",fields:{Label:"7/25",Month:"7/2025",total:971,stage_new_ca:40,stage_data_val:177,stage_car_check:426,stage_vin_check:154,stage_awaiting_sel:92,stage_auditor_sel:35,stage_audit_order:36,stage_preparation:10,reason_car_na:283,reason_client:18,reason_car_cond:135,reason_seller:222,reason_auto:299,reason_other:14,avg_amount:106.9,count_with_amount:391}},
-{id:"ca19",fields:{Label:"8/25",Month:"8/2025",total:1037,stage_new_ca:122,stage_data_val:226,stage_car_check:364,stage_vin_check:89,stage_awaiting_sel:130,stage_auditor_sel:48,stage_audit_order:44,stage_preparation:12,reason_car_na:322,reason_client:13,reason_car_cond:126,reason_seller:180,reason_auto:379,reason_other:17,avg_amount:99.83,count_with_amount:426}},
-{id:"ca20",fields:{Label:"9/25",Month:"9/2025",total:1120,stage_new_ca:62,stage_data_val:264,stage_car_check:358,stage_vin_check:143,stage_awaiting_sel:156,stage_auditor_sel:68,stage_audit_order:48,stage_preparation:16,reason_car_na:312,reason_client:37,reason_car_cond:189,reason_seller:218,reason_auto:331,reason_other:33,avg_amount:84.63,count_with_amount:490}},
-{id:"ca21",fields:{Label:"10/25",Month:"10/2025",total:1165,stage_new_ca:100,stage_data_val:246,stage_car_check:387,stage_vin_check:144,stage_awaiting_sel:159,stage_auditor_sel:52,stage_audit_order:59,stage_preparation:13,reason_car_na:305,reason_client:18,reason_car_cond:184,reason_seller:241,reason_auto:393,reason_other:24,avg_amount:75.9,count_with_amount:562}},
-{id:"ca22",fields:{Label:"11/25",Month:"11/2025",total:1070,stage_new_ca:94,stage_data_val:259,stage_car_check:326,stage_vin_check:121,stage_awaiting_sel:145,stage_auditor_sel:47,stage_audit_order:57,stage_preparation:15,reason_car_na:311,reason_client:14,reason_car_cond:146,reason_seller:217,reason_auto:349,reason_other:33,avg_amount:75.91,count_with_amount:546}},
-{id:"ca23",fields:{Label:"12/25",Month:"12/2025",total:772,stage_new_ca:78,stage_data_val:147,stage_car_check:255,stage_vin_check:102,stage_awaiting_sel:103,stage_auditor_sel:26,stage_audit_order:52,stage_preparation:5,reason_car_na:176,reason_client:6,reason_car_cond:154,reason_seller:146,reason_auto:273,reason_other:17,avg_amount:72.19,count_with_amount:358}},
-{id:"ca24",fields:{Label:"1/26",Month:"1/2026",total:883,stage_new_ca:103,stage_data_val:197,stage_car_check:255,stage_vin_check:84,stage_awaiting_sel:130,stage_auditor_sel:35,stage_audit_order:56,stage_preparation:19,reason_car_na:206,reason_client:13,reason_car_cond:135,reason_seller:187,reason_auto:328,reason_other:14,avg_amount:79.11,count_with_amount:483}},
-{id:"ca25",fields:{Label:"2/26",Month:"2/2026",total:860,stage_new_ca:111,stage_data_val:173,stage_car_check:305,stage_vin_check:74,stage_awaiting_sel:92,stage_auditor_sel:32,stage_audit_order:59,stage_preparation:10,reason_car_na:240,reason_client:7,reason_car_cond:96,reason_seller:230,reason_auto:281,reason_other:6,avg_amount:73.79,count_with_amount:504}},
-{id:"ca26",fields:{Label:"3/26",Month:"3/2026",total:896,stage_new_ca:69,stage_data_val:161,stage_car_check:404,stage_vin_check:75,stage_awaiting_sel:76,stage_auditor_sel:35,stage_audit_order:58,stage_preparation:15,reason_car_na:269,reason_client:9,reason_car_cond:106,reason_seller:249,reason_auto:238,reason_other:25,avg_amount:76.9,count_with_amount:476}}
+{id:"ca0",fields:{Label:"1/24",Month:"1/2024",total:1062,stage_new_ca:0,stage_data_val:275,stage_car_check:461,stage_vin_check:204,stage_awaiting_sel:3,stage_auditor_sel:14,stage_audit_order:72,stage_preparation:32,reason_car_na:321,reason_client:281,reason_car_cond:157,reason_seller:299,reason_auto:0,reason_other:4,avg_amount:165.12,count_with_amount:598,revenue:30650.13}},
+{id:"ca1",fields:{Label:"2/24",Month:"2/2024",total:921,stage_new_ca:0,stage_data_val:104,stage_car_check:506,stage_vin_check:223,stage_awaiting_sel:1,stage_auditor_sel:10,stage_audit_order:55,stage_preparation:20,reason_car_na:325,reason_client:317,reason_car_cond:120,reason_seller:154,reason_auto:0,reason_other:5,avg_amount:165.7,count_with_amount:582,revenue:26176.6}},
+{id:"ca2",fields:{Label:"3/24",Month:"3/2024",total:916,stage_new_ca:4,stage_data_val:165,stage_car_check:442,stage_vin_check:210,stage_awaiting_sel:2,stage_auditor_sel:12,stage_audit_order:64,stage_preparation:10,reason_car_na:310,reason_client:315,reason_car_cond:122,reason_seller:164,reason_auto:0,reason_other:5,avg_amount:163.39,count_with_amount:614,revenue:29204.24}},
+{id:"ca3",fields:{Label:"4/24",Month:"4/2024",total:934,stage_new_ca:20,stage_data_val:158,stage_car_check:487,stage_vin_check:181,stage_awaiting_sel:0,stage_auditor_sel:18,stage_audit_order:50,stage_preparation:18,reason_car_na:313,reason_client:331,reason_car_cond:114,reason_seller:160,reason_auto:0,reason_other:16,avg_amount:163.0,count_with_amount:654,revenue:36655.29}},
+{id:"ca4",fields:{Label:"5/24",Month:"5/2024",total:1049,stage_new_ca:4,stage_data_val:136,stage_car_check:561,stage_vin_check:241,stage_awaiting_sel:0,stage_auditor_sel:20,stage_audit_order:61,stage_preparation:21,reason_car_na:329,reason_client:379,reason_car_cond:127,reason_seller:209,reason_auto:0,reason_other:5,avg_amount:167.69,count_with_amount:735,revenue:30288.32}},
+{id:"ca5",fields:{Label:"6/24",Month:"6/2024",total:763,stage_new_ca:9,stage_data_val:91,stage_car_check:423,stage_vin_check:169,stage_awaiting_sel:0,stage_auditor_sel:11,stage_audit_order:46,stage_preparation:9,reason_car_na:232,reason_client:272,reason_car_cond:127,reason_seller:131,reason_auto:0,reason_other:1,avg_amount:170.62,count_with_amount:596,revenue:27443.89}},
+{id:"ca6",fields:{Label:"7/24",Month:"7/2024",total:775,stage_new_ca:4,stage_data_val:135,stage_car_check:384,stage_vin_check:161,stage_awaiting_sel:0,stage_auditor_sel:16,stage_audit_order:58,stage_preparation:13,reason_car_na:196,reason_client:275,reason_car_cond:151,reason_seller:150,reason_auto:0,reason_other:3,avg_amount:173.4,count_with_amount:559,revenue:25173.44}},
+{id:"ca7",fields:{Label:"8/24",Month:"8/2024",total:644,stage_new_ca:5,stage_data_val:85,stage_car_check:369,stage_vin_check:129,stage_awaiting_sel:0,stage_auditor_sel:10,stage_audit_order:37,stage_preparation:8,reason_car_na:197,reason_client:238,reason_car_cond:98,reason_seller:111,reason_auto:0,reason_other:0,avg_amount:181.66,count_with_amount:469,revenue:25084.2}},
+{id:"ca8",fields:{Label:"9/24",Month:"9/2024",total:826,stage_new_ca:5,stage_data_val:147,stage_car_check:409,stage_vin_check:196,stage_awaiting_sel:0,stage_auditor_sel:11,stage_audit_order:51,stage_preparation:5,reason_car_na:243,reason_client:283,reason_car_cond:146,reason_seller:147,reason_auto:0,reason_other:7,avg_amount:181.76,count_with_amount:550,revenue:28324.38}},
+{id:"ca9",fields:{Label:"10/24",Month:"10/2024",total:854,stage_new_ca:13,stage_data_val:118,stage_car_check:416,stage_vin_check:210,stage_awaiting_sel:0,stage_auditor_sel:19,stage_audit_order:58,stage_preparation:16,reason_car_na:280,reason_client:302,reason_car_cond:101,reason_seller:145,reason_auto:0,reason_other:26,avg_amount:175.43,count_with_amount:597,revenue:28385.63}},
+{id:"ca10",fields:{Label:"11/24",Month:"11/2024",total:759,stage_new_ca:8,stage_data_val:149,stage_car_check:312,stage_vin_check:210,stage_awaiting_sel:0,stage_auditor_sel:16,stage_audit_order:47,stage_preparation:15,reason_car_na:230,reason_client:295,reason_car_cond:106,reason_seller:117,reason_auto:0,reason_other:11,avg_amount:161.44,count_with_amount:492,revenue:24529.76}},
+{id:"ca11",fields:{Label:"12/24",Month:"12/2024",total:626,stage_new_ca:7,stage_data_val:95,stage_car_check:245,stage_vin_check:205,stage_awaiting_sel:0,stage_auditor_sel:20,stage_audit_order:44,stage_preparation:8,reason_car_na:184,reason_client:226,reason_car_cond:91,reason_seller:110,reason_auto:0,reason_other:15,avg_amount:156.29,count_with_amount:382,revenue:19268.25}},
+{id:"ca12",fields:{Label:"1/25",Month:"1/2025",total:760,stage_new_ca:5,stage_data_val:134,stage_car_check:291,stage_vin_check:263,stage_awaiting_sel:0,stage_auditor_sel:16,stage_audit_order:34,stage_preparation:15,reason_car_na:242,reason_client:293,reason_car_cond:122,reason_seller:97,reason_auto:0,reason_other:6,avg_amount:137.59,count_with_amount:374,revenue:23472.11}},
+{id:"ca13",fields:{Label:"2/25",Month:"2/2025",total:709,stage_new_ca:4,stage_data_val:140,stage_car_check:263,stage_vin_check:226,stage_awaiting_sel:3,stage_auditor_sel:23,stage_audit_order:45,stage_preparation:5,reason_car_na:209,reason_client:249,reason_car_cond:101,reason_seller:116,reason_auto:0,reason_other:34,avg_amount:112.93,count_with_amount:365,revenue:32878.67}},
+{id:"ca14",fields:{Label:"3/25",Month:"3/2025",total:799,stage_new_ca:4,stage_data_val:164,stage_car_check:321,stage_vin_check:221,stage_awaiting_sel:0,stage_auditor_sel:35,stage_audit_order:48,stage_preparation:5,reason_car_na:224,reason_client:256,reason_car_cond:124,reason_seller:173,reason_auto:0,reason_other:22,avg_amount:113.68,count_with_amount:400,revenue:38482.16}},
+{id:"ca15",fields:{Label:"4/25",Month:"4/2025",total:784,stage_new_ca:7,stage_data_val:170,stage_car_check:296,stage_vin_check:228,stage_awaiting_sel:3,stage_auditor_sel:38,stage_audit_order:40,stage_preparation:2,reason_car_na:208,reason_client:216,reason_car_cond:162,reason_seller:166,reason_auto:0,reason_other:32,avg_amount:100.11,count_with_amount:379,revenue:33954.93}},
+{id:"ca16",fields:{Label:"5/25",Month:"5/2025",total:820,stage_new_ca:24,stage_data_val:155,stage_car_check:329,stage_vin_check:223,stage_awaiting_sel:14,stage_auditor_sel:35,stage_audit_order:34,stage_preparation:3,reason_car_na:228,reason_client:244,reason_car_cond:115,reason_seller:191,reason_auto:15,reason_other:27,avg_amount:105.89,count_with_amount:394,revenue:36191.87}},
+{id:"ca17",fields:{Label:"6/25",Month:"6/2025",total:990,stage_new_ca:50,stage_data_val:153,stage_car_check:391,stage_vin_check:252,stage_awaiting_sel:45,stage_auditor_sel:39,stage_audit_order:47,stage_preparation:10,reason_car_na:278,reason_client:108,reason_car_cond:137,reason_seller:195,reason_auto:230,reason_other:42,avg_amount:101.08,count_with_amount:442,revenue:36520.05}},
+{id:"ca18",fields:{Label:"7/25",Month:"7/2025",total:971,stage_new_ca:40,stage_data_val:177,stage_car_check:426,stage_vin_check:154,stage_awaiting_sel:92,stage_auditor_sel:35,stage_audit_order:36,stage_preparation:10,reason_car_na:283,reason_client:18,reason_car_cond:135,reason_seller:222,reason_auto:299,reason_other:14,avg_amount:106.9,count_with_amount:391,revenue:34795.72}},
+{id:"ca19",fields:{Label:"8/25",Month:"8/2025",total:1037,stage_new_ca:122,stage_data_val:226,stage_car_check:364,stage_vin_check:89,stage_awaiting_sel:130,stage_auditor_sel:48,stage_audit_order:44,stage_preparation:12,reason_car_na:322,reason_client:13,reason_car_cond:126,reason_seller:180,reason_auto:379,reason_other:17,avg_amount:99.83,count_with_amount:426,revenue:35369.71}},
+{id:"ca20",fields:{Label:"9/25",Month:"9/2025",total:1120,stage_new_ca:62,stage_data_val:264,stage_car_check:358,stage_vin_check:143,stage_awaiting_sel:156,stage_auditor_sel:68,stage_audit_order:48,stage_preparation:16,reason_car_na:312,reason_client:37,reason_car_cond:189,reason_seller:218,reason_auto:331,reason_other:33,avg_amount:84.63,count_with_amount:490,revenue:36456.9}},
+{id:"ca21",fields:{Label:"10/25",Month:"10/2025",total:1165,stage_new_ca:100,stage_data_val:246,stage_car_check:387,stage_vin_check:144,stage_awaiting_sel:159,stage_auditor_sel:52,stage_audit_order:59,stage_preparation:13,reason_car_na:305,reason_client:18,reason_car_cond:184,reason_seller:241,reason_auto:393,reason_other:24,avg_amount:75.9,count_with_amount:562,revenue:45686.05}},
+{id:"ca22",fields:{Label:"11/25",Month:"11/2025",total:1070,stage_new_ca:94,stage_data_val:259,stage_car_check:326,stage_vin_check:121,stage_awaiting_sel:145,stage_auditor_sel:47,stage_audit_order:57,stage_preparation:15,reason_car_na:311,reason_client:14,reason_car_cond:146,reason_seller:217,reason_auto:349,reason_other:33,avg_amount:75.91,count_with_amount:546,revenue:41159.07}},
+{id:"ca23",fields:{Label:"12/25",Month:"12/2025",total:772,stage_new_ca:78,stage_data_val:147,stage_car_check:255,stage_vin_check:102,stage_awaiting_sel:103,stage_auditor_sel:26,stage_audit_order:52,stage_preparation:5,reason_car_na:176,reason_client:6,reason_car_cond:154,reason_seller:146,reason_auto:273,reason_other:17,avg_amount:72.19,count_with_amount:358,revenue:21328.34}},
+{id:"ca24",fields:{Label:"1/26",Month:"1/2026",total:883,stage_new_ca:103,stage_data_val:197,stage_car_check:255,stage_vin_check:84,stage_awaiting_sel:130,stage_auditor_sel:35,stage_audit_order:56,stage_preparation:19,reason_car_na:206,reason_client:13,reason_car_cond:135,reason_seller:187,reason_auto:328,reason_other:14,avg_amount:79.11,count_with_amount:483,revenue:31127.93}},
+{id:"ca25",fields:{Label:"2/26",Month:"2/2026",total:860,stage_new_ca:111,stage_data_val:173,stage_car_check:305,stage_vin_check:74,stage_awaiting_sel:92,stage_auditor_sel:32,stage_audit_order:59,stage_preparation:10,reason_car_na:240,reason_client:7,reason_car_cond:96,reason_seller:230,reason_auto:281,reason_other:6,avg_amount:73.79,count_with_amount:504,revenue:37656.9}},
+{id:"ca26",fields:{Label:"3/26",Month:"3/2026",total:896,stage_new_ca:69,stage_data_val:161,stage_car_check:404,stage_vin_check:75,stage_awaiting_sel:76,stage_auditor_sel:35,stage_audit_order:58,stage_preparation:15,reason_car_na:269,reason_client:9,reason_car_cond:106,reason_seller:249,reason_auto:238,reason_other:25,avg_amount:76.9,count_with_amount:476,revenue:43045.43}}
 ];
 
 // === CARAUDIT WEEKLY TEST DATA (CA CarAudit Done Date, real data from CSV, 117 weeks) ===
@@ -1426,6 +1426,59 @@ window.CostPerCarChart = function(props) {
 };
 
 
+
+window.RevenueCostChart = function(props) {
+  var E=React.createElement, RC=Recharts;
+  var data=props.data, title=props.title, subtitle=props.subtitle;
+  var st=React.useState(27), range=st[0], setRange=st[1];
+  var buttons=[6,12,24,data.length], btnLabels=['6M','12M','24M',data.length+'M'];
+  var slice=data.slice().slice(-range).reverse();
+  var fmt=function(v){return v!=null?Math.round(Math.abs(v)).toLocaleString('cs-CZ')+' €':'—';};
+  var Tip=function(p){
+    if(!p.active||!p.payload||!p.payload.length)return null;
+    var d=p.payload[0]&&p.payload[0].payload;
+    if(!d)return null;
+    return E('div',{style:{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)'}},
+      E('div',{style:{fontWeight:700,marginBottom:6,borderBottom:'1px solid #f3f4f6',paddingBottom:4}},p.label),
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16,marginBottom:3}},E('span',{style:{color:'#22c55e',fontWeight:600}},'Revenue (výnos)'),E('span',{style:{fontWeight:700}},fmt(d.revenue))),
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16,marginBottom:3}},E('span',{style:{color:'#ef4444',fontWeight:600}},'Total cost (náklad)'),E('span',{style:{fontWeight:700}},fmt(d.total_cost))),
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16}},E('span',{style:{color:d.margin>=0?'#22c55e':'#ef4444',fontWeight:700}},'Marže'),E('span',{style:{fontWeight:700,color:d.margin>=0?'#22c55e':'#ef4444'}},(d.margin<0?'-':'')+fmt(d.margin)))
+    );
+  };
+  var renderLbl=function(p){
+    if(p.value==null)return null;
+    var fs=slice.length>20?7:9;
+    var abs=Math.abs(p.value);
+    var txt=abs>=1000?(abs/1000).toFixed(1)+'k€':Math.round(abs)+'€';
+    if(p.value<0)txt='-'+txt;
+    var ypos=p.value>=0?p.y-5:p.y+12;
+    return E('text',{x:p.x,y:ypos,textAnchor:'middle',fontSize:fs,fill:p.value>=0?'#22c55e':'#ef4444',fontWeight:700},txt);
+  };
+  return E('div',{style:{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}},
+    E('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
+      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
+      E('div',{style:{display:'flex',gap:4}},buttons.map(function(b,i){return E('button',{key:i,onClick:function(){setRange(b);},style:{padding:'4px 10px',fontSize:11,fontWeight:600,background:range===b?'#3E47DD':'#EDF1F8',color:range===b?'#fff':'#7B87A8',border:'none',borderRadius:5,cursor:'pointer'}},btnLabels[i]);}))
+    ),
+    E(RC.ResponsiveContainer,{width:'100%',height:280},
+      E(RC.BarChart,{data:slice,margin:{left:0,right:10,top:28,bottom:5}},
+        E(RC.CartesianGrid,{strokeDasharray:'3 3',vertical:false}),
+        E(RC.XAxis,{dataKey:'m',fontSize:11,tick:{fill:'#374151'},interval:0,angle:-45,textAnchor:'end',height:50}),
+        E(RC.YAxis,{fontSize:11,tickFormatter:function(v){return (v/1000).toFixed(0)+'k€';},width:55}),
+        E(RC.Tooltip,{content:Tip}),
+        E(RC.ReferenceLine,{y:0,stroke:'#374151',strokeWidth:1.5}),
+        E(RC.Bar,{dataKey:'margin',name:'Marže (Revenue - Cost)',radius:[3,3,0,0],label:{content:renderLbl}},
+          slice.map(function(d,i){return E(RC.Cell,{key:i,fill:d.margin>=0?'#22c55e':'#ef4444'});})
+        )
+      )
+    ),
+    E('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}},
+      E('div',{style:{fontSize:10,color:'#94a3b8',whiteSpace:'nowrap',fontStyle:'italic'}},'↻ '+(window.DATA_LAST_UPDATED||'—')),
+      E('div',{style:{fontSize:10,color:'#9ca3af',textAlign:'right'}},subtitle||'')
+    )
+  );
+};
+
+
 </script>
 <script type="text/babel">
 
@@ -1473,6 +1526,7 @@ const CA_API_URL = `https://api.airtable.com/v0/${BASE_ID}/${CA_TABLE_ID}?sort%5
 // plain-script component refs (hooks work when used as <CompName .../> in JSX)
 const AvgCostChartComp = window.AvgCostChart;
 const CostPerCarChartComp = window.CostPerCarChart;
+const RevenueCostChartComp = window.RevenueCostChart;
 
 // === TOKEN ENTRY SCREEN ===
 const TokenScreen = () => {
@@ -2649,6 +2703,15 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
     }).filter(Boolean);
   }, [CA, D]);
   const caCostData = caCostPerCar.slice(-range);
+  const caMarginData = useMemo(() => {
+    return CA.map(r => {
+      if (r.revenue == null) return null;
+      const total_cost = Math.round((r.avg_amount||0) * (r.count_with_amount||0));
+      const margin = Math.round((r.revenue||0) - total_cost);
+      return {m: r.m, revenue: r.revenue, total_cost, margin};
+    }).filter(Boolean);
+  }, [CA]);
+  const caMarginSlice = caMarginData.slice(-range);
 
   return (
     <div style={{minHeight:'100vh',background:'#EDF1F8'}}>
@@ -2813,6 +2876,13 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
           data={caCostData}
           title="💶 EUR náklad za CarAudit na 1 prodané auto (měsíčně)"
           subtitle="(avg_amount × count_with_amount) / cp · Carvago Paid"
+        />}
+
+        {/* Revenue vs Cost (Marže) */}
+        {caMarginSlice.length > 0 && RevenueCostChartComp && <RevenueCostChartComp
+          data={caMarginSlice}
+          title="💶 Revenue vs Cost — CarAudit marže (měsíčně)"
+          subtitle="Revenue = FA_CA_2025 › REVE_CA_FROM_2024 Total · Cost = avg_amount × count · Marže = Revenue − Cost"
         />}
 
         {/* Footer */}
