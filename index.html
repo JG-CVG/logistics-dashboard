@@ -1273,21 +1273,17 @@ window.renderBarLabel=function(props){
   if(!v||h<13)return null;
   return E('text',{x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v);
 };
-// renderBarLabel for topmost stacked bar: shows total ABOVE bar + segment value inside
+// renderBarLabel for topmost stacked bar: shows ONLY total ABOVE bar (no segment value inside)
 window.renderBarLabelWithTotal=function(getSlice){
   return function(props){
-    var E=React.createElement,x=props.x,y=props.y,w=props.width,h=props.height,v=props.value;
+    var E=React.createElement,x=props.x,y=props.y,w=props.width,v=props.value;
     var idx=props.index;
     var sl=getSlice();
     var d=sl&&sl[idx];
-    var parts=[];
-    if(d&&d.total){
-      parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},d.total));
-    }
-    if(v&&h>=13){
-      parts.push(E('text',{key:'val',x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v));
-    }
-    return parts.length?E('g',null,parts):null;
+    if(!d) return null;
+    var total=d.total;
+    if(!total) return null;
+    return E('text',{x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total);
   };
 };
 
@@ -2544,16 +2540,13 @@ const FirstCallChart = ({data, title, subtitle}) => {
 
   const renderLabel = window.renderBarLabel;
   const renderLabelTotal = function(props){
-    var E=React.createElement,x=props.x,y=props.y,w=props.width,h=props.height,v=props.value;
+    var E=React.createElement,x=props.x,y=props.y,w=props.width;
     var idx=props.index;
     var d=slice&&slice[idx];
-    var parts=[];
-    if(d){
-      var total=d.total||((d.done||0)+(d.inprogress||0)+(d.closed||0));
-      if(total) parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
-    }
-    if(v&&h>=13) parts.push(E('text',{key:'val',x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v));
-    return parts.length?E('g',null,parts):null;
+    if(!d) return null;
+    var total=d.total||((d.done||0)+(d.inprogress||0)+(d.closed||0));
+    if(!total) return null;
+    return E('text',{x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total);
   };
 
   const renderTooltip = (props) => {
