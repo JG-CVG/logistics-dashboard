@@ -1273,7 +1273,7 @@ window.renderBarLabel=function(props){
   if(!v||h<13)return null;
   return E('text',{x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v);
 };
-// renderBarLabel for topmost stacked bar: total ABOVE bar + segment value inside
+// renderBarLabel for topmost stacked bar: total ABOVE bar, closed value below total
 window.renderBarLabelWithTotal=function(getSlice){
   return function(props){
     var E=React.createElement,x=props.x,y=props.y,w=props.width,h=props.height,v=props.value;
@@ -1283,8 +1283,13 @@ window.renderBarLabelWithTotal=function(getSlice){
     if(!d) return null;
     var parts=[];
     var total=d.total;
-    if(total) parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
-    if(v&&h>=13) parts.push(E('text',{key:'val',x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v));
+    if(total&&v){
+      // total bold above, closed value smaller below
+      parts.push(E('text',{key:'tot',x:x+w/2,y:y-14,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
+      parts.push(E('text',{key:'val',x:x+w/2,y:y-3,textAnchor:'middle',fontSize:8,fill:'#94a3b8',fontWeight:600},v));
+    } else if(total){
+      parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
+    }
     return parts.length?E('g',null,parts):null;
   };
 };
@@ -2429,7 +2434,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle}) => {
       </div>
     </div>
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={slice} margin={{left:0,right:10,top:20,bottom:40}} barCategoryGap="20%">
+      <BarChart data={slice} margin={{left:0,right:10,top:28,bottom:40}} barCategoryGap="20%">
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
         <XAxis dataKey="label" tick={renderTick} interval={interval} height={60}/>
         <YAxis fontSize={11}/>
@@ -2548,8 +2553,12 @@ const FirstCallChart = ({data, title, subtitle}) => {
     if(!d) return null;
     var parts=[];
     var total=d.total||((d.done||0)+(d.inprogress||0)+(d.closed||0));
-    if(total) parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
-    if(v&&h>=13) parts.push(E('text',{key:'val',x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v));
+    if(total&&v){
+      parts.push(E('text',{key:'tot',x:x+w/2,y:y-14,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
+      parts.push(E('text',{key:'val',x:x+w/2,y:y-3,textAnchor:'middle',fontSize:8,fill:'#94a3b8',fontWeight:600},v));
+    } else if(total){
+      parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
+    }
     return parts.length?E('g',null,parts):null;
   };
 
@@ -2605,7 +2614,7 @@ const FirstCallChart = ({data, title, subtitle}) => {
       </div>
     </div>
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={slice} margin={{left:0,right:10,top:20,bottom:40}} barCategoryGap="20%">
+      <BarChart data={slice} margin={{left:0,right:10,top:28,bottom:40}} barCategoryGap="20%">
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
         <XAxis dataKey="label" tick={renderTick} interval={interval} height={60}/>
         <YAxis fontSize={11}/>
