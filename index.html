@@ -1273,6 +1273,23 @@ window.renderBarLabel=function(props){
   if(!v||h<13)return null;
   return E('text',{x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v);
 };
+// renderBarLabel for topmost stacked bar: shows total ABOVE bar + segment value inside
+window.renderBarLabelWithTotal=function(getSlice){
+  return function(props){
+    var E=React.createElement,x=props.x,y=props.y,w=props.width,h=props.height,v=props.value;
+    var idx=props.index;
+    var sl=getSlice();
+    var d=sl&&sl[idx];
+    var parts=[];
+    if(d&&d.total){
+      parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},d.total));
+    }
+    if(v&&h>=13){
+      parts.push(E('text',{key:'val',x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v));
+    }
+    return parts.length?E('g',null,parts):null;
+  };
+};
 
 // FC_CLOSED_KEYS
 window.FC_CLOSED_KEYS = [
@@ -2358,6 +2375,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle}) => {
   const renderTick = window.makeWeekTick(()=>slice);
 
   const renderLabel = window.renderBarLabel;
+  const renderLabelTotal = window.renderBarLabelWithTotal(()=>slice);
 
   const renderTooltip = (props) => {
     const {active, payload, label} = props;
@@ -2413,7 +2431,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle}) => {
       </div>
     </div>
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={slice} margin={{left:0,right:10,top:10,bottom:40}} barCategoryGap="20%">
+      <BarChart data={slice} margin={{left:0,right:10,top:20,bottom:40}} barCategoryGap="20%">
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
         <XAxis dataKey="label" tick={renderTick} interval={interval} height={60}/>
         <YAxis fontSize={11}/>
@@ -2421,7 +2439,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle}) => {
         <Legend wrapperStyle={{fontSize:11,paddingTop:8}}/>
         <Bar dataKey="inprogress" name="In Progress" fill="#3E47DD" stackId="a" radius={[0,0,0,0]} label={renderLabel} style={{cursor:'pointer'}} onClick={function(d){openModal(d,'ip','In Progress');}}/>
         <Bar dataKey="done"       name="Done"         fill="#22c55e" stackId="a" radius={[0,0,0,0]} label={renderLabel} style={{cursor:'pointer'}} onClick={function(d){openModal(d,'d','Done');}}/>
-        <Bar dataKey="closed"     name="Closed"       fill="#94a3b8" stackId="a" radius={[3,3,0,0]} label={renderLabel} style={{cursor:'pointer'}} onClick={function(d){openModal(d,'c','Closed');}}/>
+        <Bar dataKey="closed"     name="Closed"       fill="#94a3b8" stackId="a" radius={[3,3,0,0]} label={renderLabelTotal} style={{cursor:'pointer'}} onClick={function(d){openModal(d,'c','Closed');}}/>
       </BarChart>
     </ResponsiveContainer>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
@@ -2525,6 +2543,18 @@ const FirstCallChart = ({data, title, subtitle}) => {
   const renderTick = window.makeWeekTick(()=>slice);
 
   const renderLabel = window.renderBarLabel;
+  const renderLabelTotal = function(props){
+    var E=React.createElement,x=props.x,y=props.y,w=props.width,h=props.height,v=props.value;
+    var idx=props.index;
+    var d=slice&&slice[idx];
+    var parts=[];
+    if(d){
+      var total=d.total||((d.done||0)+(d.inprogress||0)+(d.closed||0));
+      if(total) parts.push(E('text',{key:'tot',x:x+w/2,y:y-5,textAnchor:'middle',fontSize:10,fill:'#374151',fontWeight:700},total));
+    }
+    if(v&&h>=13) parts.push(E('text',{key:'val',x:x+w/2,y:y+h/2+4,textAnchor:'middle',fontSize:9,fill:'#fff',fontWeight:700},v));
+    return parts.length?E('g',null,parts):null;
+  };
 
   const renderTooltip = (props) => {
     const {active, payload, label} = props;
@@ -2578,7 +2608,7 @@ const FirstCallChart = ({data, title, subtitle}) => {
       </div>
     </div>
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={slice} margin={{left:0,right:10,top:10,bottom:40}} barCategoryGap="20%">
+      <BarChart data={slice} margin={{left:0,right:10,top:20,bottom:40}} barCategoryGap="20%">
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
         <XAxis dataKey="label" tick={renderTick} interval={interval} height={60}/>
         <YAxis fontSize={11}/>
@@ -2586,7 +2616,7 @@ const FirstCallChart = ({data, title, subtitle}) => {
         <Legend wrapperStyle={{fontSize:11,paddingTop:8}}/>
         <Bar dataKey="done"       name="Done"        fill="#22c55e" stackId="a" label={renderLabel}/>
         <Bar dataKey="inprogress" name="In Progress" fill="#3E47DD" stackId="a" label={renderLabel}/>
-        <Bar dataKey="closed"     name="Closed"      fill="#94a3b8" stackId="a" radius={[3,3,0,0]} label={renderLabel}/>
+        <Bar dataKey="closed"     name="Closed"      fill="#94a3b8" stackId="a" radius={[3,3,0,0]} label={renderLabelTotal}/>
       </BarChart>
     </ResponsiveContainer>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
