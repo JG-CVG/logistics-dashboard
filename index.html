@@ -1332,7 +1332,7 @@ window.DrillDownModal = function(props) {
   if(!modal) return null;
   var E=React.createElement;
   var title=modal.title, records=modal.records, cnt=records.length;
-  var suf=cnt===1?'':cnt<5?'y':'ů';
+  var suf=cnt===1?'':'s';
   var hs={padding:'7px 10px',textAlign:'left',borderBottom:'1px solid #e5e7eb',fontSize:11,fontWeight:700,color:'#7B87A8',background:'#f8fafc'};
   var cs={padding:'6px 10px',fontSize:11,borderBottom:'1px solid #f3f4f6',verticalAlign:'top'};
   var rc=function(r){return r.cs&&r.cs.toLowerCase().includes('reject')?'#ef4444':r.cs&&r.cs.includes('APPROVED')?'#22c55e':'#374151';};
@@ -1343,7 +1343,7 @@ window.DrillDownModal = function(props) {
         E('button',{onClick:onClose,style:{border:'none',background:'#f1f5f9',borderRadius:7,width:28,height:28,cursor:'pointer',fontSize:16,color:'#64748b',lineHeight:'28px',textAlign:'center',padding:0}},'✕')
       ),
       cnt===0
-        ? E('div',{style:{padding:32,textAlign:'center',color:'#9ca3af',fontSize:13}},'Žádná data (starší než 12 týdnů).')
+        ? E('div',{style:{padding:32,textAlign:'center',color:'#9ca3af',fontSize:13}},'No data (older than 12 weeks).')
         : E('div',{style:{overflowY:'auto',flex:1}},
             E('table',{style:{width:'100%',borderCollapse:'collapse'}},
               E('thead',{style:{position:'sticky',top:0,zIndex:1}},E('tr',null,
@@ -1359,7 +1359,7 @@ window.DrillDownModal = function(props) {
               }))
             )
           ),
-      E('div',{style:{padding:'10px 20px',borderTop:'1px solid #e5e7eb',fontSize:11,color:'#9ca3af',textAlign:'right'}},cnt+' záznam'+suf+' · klikni mimo pro zavření')
+      E('div',{style:{padding:'10px 20px',borderTop:'1px solid #e5e7eb',fontSize:11,color:'#9ca3af',textAlign:'right'}},cnt+' record'+suf+' · click outside to close')
     )
   );
 };
@@ -1419,7 +1419,7 @@ window.CostPerCarChart = function(props) {
     var v=p.payload[0]&&p.payload[0].value;
     return E('div',{style:{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)'}},
       E('div',{style:{fontWeight:700,marginBottom:4}},p.label),
-      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16}},E('span',{style:{color:'#3E47DD',fontWeight:600}},'EUR / 1 prodané auto'),E('span',{style:{fontWeight:700}},v!=null?v+' EUR':'—'))
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16}},E('span',{style:{color:'#3E47DD',fontWeight:600}},'EUR / 1 sold car'),E('span',{style:{fontWeight:700}},v!=null?v+' EUR':'—'))
     );
   };
   var renderLbl=function(p){if(!p.value)return null;var fs=slice.length>20?8:9;return E('text',{x:p.x,y:p.y-5,textAnchor:'middle',fontSize:fs,fill:'#3E47DD',fontWeight:700},p.value+'€');};
@@ -1459,9 +1459,9 @@ window.RevenueCostChart = function(props) {
     if(!d)return null;
     return E('div',{style:{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)'}},
       E('div',{style:{fontWeight:700,marginBottom:6,borderBottom:'1px solid #f3f4f6',paddingBottom:4}},p.label),
-      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16,marginBottom:3}},E('span',{style:{color:'#22c55e',fontWeight:600}},'Revenue (výnos)'),E('span',{style:{fontWeight:700}},fmt(d.revenue))),
-      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16,marginBottom:3}},E('span',{style:{color:'#ef4444',fontWeight:600}},'Total cost (náklad)'),E('span',{style:{fontWeight:700}},fmt(d.total_cost))),
-      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16}},E('span',{style:{color:d.margin>=0?'#22c55e':'#ef4444',fontWeight:700}},'Marže'),E('span',{style:{fontWeight:700,color:d.margin>=0?'#22c55e':'#ef4444'}},(d.margin<0?'-':'')+fmt(d.margin)))
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16,marginBottom:3}},E('span',{style:{color:'#22c55e',fontWeight:600}},'Revenue'),E('span',{style:{fontWeight:700}},fmt(d.revenue))),
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16,marginBottom:3}},E('span',{style:{color:'#ef4444',fontWeight:600}},'Total cost'),E('span',{style:{fontWeight:700}},fmt(d.total_cost))),
+      E('div',{style:{display:'flex',justifyContent:'space-between',gap:16}},E('span',{style:{color:d.margin>=0?'#22c55e':'#ef4444',fontWeight:700}},'Margin'),E('span',{style:{fontWeight:700,color:d.margin>=0?'#22c55e':'#ef4444'}},(d.margin<0?'-':'')+fmt(d.margin)))
     );
   };
   var renderLbl=function(p){
@@ -1485,7 +1485,7 @@ window.RevenueCostChart = function(props) {
         E(RC.YAxis,{fontSize:11,tickFormatter:function(v){return (v/1000).toFixed(0)+'k€';},width:55}),
         E(RC.Tooltip,{content:Tip}),
         E(RC.ReferenceLine,{y:0,stroke:'#374151',strokeWidth:1.5}),
-        E(RC.Bar,{dataKey:'margin',name:'Marže (Revenue - Cost)',radius:[3,3,0,0],label:{content:renderLbl}},
+        E(RC.Bar,{dataKey:'margin',name:'Margin (Revenue - Cost)',radius:[3,3,0,0],label:{content:renderLbl}},
           slice.map(function(d,i){return E(RC.Cell,{key:i,fill:d.margin>=0?'#22c55e':'#ef4444'});})
         )
       )
@@ -1674,7 +1674,7 @@ const StackLabel = ({x,y,width,value}) => {
 // === CHART COMPONENT ===
 const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal}) => {
   const reversed = [...data].reverse();  // newest left, oldest right
-  // Součty za celé zobrazené období
+  // Totals for the entire displayed period
   const periodTotals = {
     [paidKey]: data.reduce((s,d)=>s+(d[paidKey]||0),0),
     [accKey]:  data.reduce((s,d)=>s+(d[accKey]||0),0),
@@ -2807,7 +2807,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
         {firstCallData && firstCallData.length > 0 && <FirstCallChart
           data={firstCallData}
           title="📞 1st Call — Done / In Progress / Closed (weekly)"
-          subtitle="Done = CA Awaiting Selection Date filled · In Progress = žádný reject · Closed = rejected · dle CA New CarAudit Date"
+          subtitle="Done = CA Awaiting Selection Date filled · In Progress = no reject · Closed = rejected · by CA New CarAudit Date"
         />}
 
         {fcClosedReasonData && fcClosedReasonData.length > 0 && <div style={{borderLeft:'4px solid #ef4444',borderRadius:10,overflow:'hidden',marginBottom:16,background:'#FFF5F5'}}>
@@ -2882,21 +2882,21 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
         {/* CA SLA Weekly: CA New to VIN Check */}
         {caSlaVinWeeklyData && caSlaVinWeeklyData.length > 0 && <CASlaWeeklyChart
           data={caSlaVinWeeklyData}
-          title="⏱️ CA New → VIN Check (NET hod., týdně)"
+          title="⏱️ CA New → VIN Check (NET hrs, weekly)"
           subtitle="% share of response time buckets · Mon-Fri 08:00-17:00 · Sat 08:00-13:00 · grouped by week of CA New"
         />}
 
         {/* CA SLA: Auditor Selection to Done/Closed (monthly) */}
         {caAudSelMonthly && caAudSelMonthly.length > 0 && <CAudSelChart
           data={caAudSelMonthly}
-          title="⏱️ CA Auditor Selection → Done/Closed (NET hod., měsíčně)"
+          title="⏱️ CA Auditor Selection → Done/Closed (NET hrs, monthly)"
           subtitle="CA Auditor Selection Date to CA Done or Closed · grouped by month of close"
         />}
 
         {/* CA SLA: Auditor Selection to Done/Closed (weekly) */}
         {caAudSelWeekly && caAudSelWeekly.length > 0 && <CAudSelChart
           data={caAudSelWeekly}
-          title="⏱️ CA Auditor Selection → Done/Closed (NET hod., týdně)"
+          title="⏱️ CA Auditor Selection → Done/Closed (NET hrs, weekly)"
           subtitle="CA Auditor Selection Date to CA Done or Closed · grouped by week of close"
           weekly={true}
         />}
@@ -2908,18 +2908,18 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caWeeklyCostData, caWeekly
           subtitle="CarAudits with a value in CarAudit Amount only (incl. 0)"
         />}
 
-        {/* EUR náklad za CarAudit na 1 prodané auto */}
+        {/* EUR cost per CarAudit per 1 sold car */}
         {caCostData.length > 0 && CostPerCarChartComp && <CostPerCarChartComp
           data={caCostData}
-          title="💶 EUR náklad za CarAudit na 1 prodané auto (měsíčně)"
+          title="💶 EUR CarAudit cost per 1 sold car (monthly)"
           subtitle="(avg_amount × count_with_amount) / cp · Carvago Paid"
         />}
 
-        {/* Revenue vs Cost (Marže) */}
+        {/* Revenue vs Cost (Margin) */}
         {caMarginSlice.length > 0 && RevenueCostChartComp && <RevenueCostChartComp
           data={caMarginSlice}
-          title="💶 Revenue vs Cost — CarAudit marže (měsíčně)"
-          subtitle="Revenue = FA_CA_2025 › REVE_CA_FROM_2024 Total · Cost = avg_amount × count · Marže = Revenue − Cost"
+          title="💶 Revenue vs Cost — CarAudit margin (monthly)"
+          subtitle="Revenue = FA_CA_2025 › REVE_CA_FROM_2024 Total · Cost = avg_amount × count · Margin = Revenue − Cost"
         />}
 
         {/* Footer */}
