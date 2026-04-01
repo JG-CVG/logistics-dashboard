@@ -3161,17 +3161,18 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
   };
   const {D, CLD, ILD, hasInsta} = useMemo(() => {
     const sort = arr => arr.slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
-    const D = sort(rawData.map(r => {
+    const validRaw = rawData.filter(r => r.fields && r.fields.Label);
+    const D = sort(validRaw.map(r => {
       const f = r.fields;
       return {m: f.Label, cp: f.cp||0, ca: f.ca||0, ip: f.ip||0, ia: f.ia||0, cl: f.cl||0, il: f.il||0};
     }));
-    const CLD = sort(rawData.map(r => {
+    const CLD = sort(validRaw.map(r => {
       const f = r.fields;
       const o = {m: f.Label};
       LOST_KEYS.forEach(k => o[`cl_${k}`] = f[`cl_${k}`]||0);
       return o;
     }));
-    const ILD = sort(rawData.map(r => {
+    const ILD = sort(validRaw.map(r => {
       const f = r.fields;
       const o = {m: f.Label};
       LOST_KEYS.forEach(k => o[`il_${k}`] = f[`il_${k}`]||0);
@@ -3216,20 +3217,21 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
     if (!caRawData) return [];
     return caRawData.map(r => {
       const f = r.fields;
+      if (!f.Label) return null;
       const o = {m: f.Label};
       ['total',...CA_STAGE_KEYS,...CA_REASON_KEYS].forEach(k => o[k] = f[k]||0);
       o.avg_amount = f.avg_amount||0;
       o.count_with_amount = f.count_with_amount||0;
       o.revenue = f.revenue != null ? f.revenue : null;
       return o;
-    }).slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
+    }).filter(Boolean).slice().sort((a,b) => parseLabel(a.m) - parseLabel(b.m));
   }, [caRawData]);
   const caData = CA.slice(-range);
   const lastCA = CA[CA.length - 1];
   const prevCA = CA.length > 1 ? CA[CA.length - 2] : null;
   const caCostPerCar = useMemo(() => {
     if (!CA.length || !D.length) return [];
-    const exp = m => {const p=m.split('/');return p[1]&&p[1].length===2?p[0]+'/20'+p[1]:m;};
+    const exp = m => {if(!m)return '';const p=m.split('/');return p[1]&&p[1].length===2?p[0]+'/20'+p[1]:m;};
     const cpMap = {};
     D.forEach(d => {cpMap[d.m]=d.cp;});
     return CA.map(r => {
