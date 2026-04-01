@@ -28,6 +28,27 @@ button{transition:all .15s ease!important;outline:none;}
 button:hover{filter:brightness(1.08);transform:translateY(-1px);}
 button:active{transform:translateY(0);}
 .cv-card{transition:box-shadow .2s,transform .2s;}
+.info-btn{width:22px;height:22px;border-radius:50%;border:2px solid #cbd5e1;background:#fff;color:#64748b;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:Georgia,serif;line-height:1;flex-shrink:0;padding:0;margin-left:8px;vertical-align:middle;}
+.info-btn:hover{border-color:#3E47DD!important;color:#3E47DD!important;background:#eef0ff!important;filter:none!important;transform:scale(1.12)!important;}
+.info-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;animation:infoFadeIn .2s ease;}
+@keyframes infoFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes infoSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.info-modal{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 48px rgba(0,0,0,.16);animation:infoSlideUp .25s ease;}
+.info-modal-header{padding:24px 28px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.info-modal-title{font-size:17px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:10px;}
+.info-modal-close{width:32px;height:32px;border-radius:8px;border:none;background:#f1f5f9;color:#64748b;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;}
+.info-modal-close:hover{background:#e2e8f0!important;color:#1e293b!important;filter:none!important;transform:none!important;}
+.info-modal-body{padding:20px 28px 28px;}
+.info-section{margin-bottom:18px;}
+.info-section:last-child{margin-bottom:0;}
+.info-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#94a3b8;margin-bottom:8px;}
+.info-section p{font-size:14px;line-height:1.6;color:#475569;}
+.info-divider{height:1px;background:#f1f5f9;margin:16px 0;}
+.info-tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:6px;font-weight:500;margin:2px 3px 2px 0;}
+.info-tag .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.info-filter{font-size:13px;color:#475569;margin-bottom:4px;}
+.info-filter b{color:#334155;}
+.info-filter code{font-family:'SF Mono',Monaco,monospace;font-size:12px;background:#f1f5f9;padding:1px 6px;border-radius:4px;color:#6366f1;}
 .cv-card:hover{box-shadow:0 6px 24px rgba(62,71,221,.13)!important;transform:translateY(-1px);}
 .cv-red{background:linear-gradient(135deg,#FFF5F5 0%,#FFF0F0 100%)!important;border-left:4px solid #ef4444!important;}
 ::-webkit-scrollbar{width:6px;height:6px;}
@@ -1400,7 +1421,7 @@ window.DrillDownModal = function(props) {
 // === AVG COST CHART (plain React.createElement) ===
 window.AvgCostChart = function(props) {
   var E=React.createElement, RC=Recharts;
-  var data=props.data,title=props.title,subtitle=props.subtitle;
+  var data=props.data,title=props.title,subtitle=props.subtitle,infoKey=props.infoKey;
   var st=React.useState(27), range=st[0], setRange=st[1];
   var buttons=[6,12,24,data.length], btnLabels=['6M','12M','24M',data.length+'M'];
   var slice=data.slice().slice(-range).reverse();
@@ -1418,7 +1439,7 @@ window.AvgCostChart = function(props) {
   var renderLbl=function(p){if(!p.value)return null;var fs=slice.length>20?8:9;return E('text',{x:p.x,y:p.y-8,textAnchor:'middle',fontSize:fs,fill:'#3E47DD',fontWeight:700},Number(p.value).toFixed(0)+' €');};
   return E('div',{style:{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}},
     E('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
-      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
+      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title,infoKey&&window.InfoButton&&E(window.InfoButton,{infoKey:infoKey})),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
       E('div',{style:{display:'flex',gap:4}},buttons.map(function(b,i){return E('button',{key:i,onClick:function(){setRange(b);},style:{padding:'4px 10px',fontSize:11,fontWeight:600,background:range===b?'#3E47DD':'#EDF1F8',color:range===b?'#fff':'#7B87A8',border:'none',borderRadius:5,cursor:'pointer'}},btnLabels[i]);}))
     ),
     E(RC.ResponsiveContainer,{width:'100%',height:300},
@@ -1443,7 +1464,7 @@ window.AvgCostChart = function(props) {
 // === COST PER CAR CHART (plain React.createElement) ===
 window.CostPerCarChart = function(props) {
   var E=React.createElement, RC=Recharts;
-  var data=props.data,title=props.title,subtitle=props.subtitle;
+  var data=props.data,title=props.title,subtitle=props.subtitle,infoKey=props.infoKey;
   var st=React.useState(27), range=st[0], setRange=st[1];
   var buttons=[6,12,24,data.length], btnLabels=['6M','12M','24M',data.length+'M'];
   var slice=data.slice().slice(-range).reverse();
@@ -1458,7 +1479,7 @@ window.CostPerCarChart = function(props) {
   var renderLbl=function(p){if(!p.value)return null;var fs=slice.length>20?8:9;return E('text',{x:p.x,y:p.y-5,textAnchor:'middle',fontSize:fs,fill:'#3E47DD',fontWeight:700},p.value+'€');};
   return E('div',{style:{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}},
     E('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
-      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
+      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title,infoKey&&window.InfoButton&&E(window.InfoButton,{infoKey:infoKey})),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
       E('div',{style:{display:'flex',gap:4}},buttons.map(function(b,i){return E('button',{key:i,onClick:function(){setRange(b);},style:{padding:'4px 10px',fontSize:11,fontWeight:600,background:range===b?'#3E47DD':'#EDF1F8',color:range===b?'#fff':'#7B87A8',border:'none',borderRadius:5,cursor:'pointer'}},btnLabels[i]);}))
     ),
     E(RC.ResponsiveContainer,{width:'100%',height:280},
@@ -1481,7 +1502,7 @@ window.CostPerCarChart = function(props) {
 
 window.RevenueCostChart = function(props) {
   var E=React.createElement, RC=Recharts;
-  var data=props.data, title=props.title, subtitle=props.subtitle;
+  var data=props.data, title=props.title, subtitle=props.subtitle, infoKey=props.infoKey;
   var st=React.useState(27), range=st[0], setRange=st[1];
   var buttons=[6,12,24,data.length], btnLabels=['6M','12M','24M',data.length+'M'];
   var slice=data.slice().slice(-range).reverse();
@@ -1508,7 +1529,7 @@ window.RevenueCostChart = function(props) {
   };
   return E('div',{style:{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}},
     E('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}},
-      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
+      E('div',null,E('h2',{style:{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}},title,infoKey&&window.InfoButton&&E(window.InfoButton,{infoKey:infoKey})),subtitle&&E('div',{style:{fontSize:11,color:'#7B87A8',marginTop:2}},subtitle)),
       E('div',{style:{display:'flex',gap:4}},buttons.map(function(b,i){return E('button',{key:i,onClick:function(){setRange(b);},style:{padding:'4px 10px',fontSize:11,fontWeight:600,background:range===b?'#3E47DD':'#EDF1F8',color:range===b?'#fff':'#7B87A8',border:'none',borderRadius:5,cursor:'pointer'}},btnLabels[i]);}))
     ),
     E(RC.ResponsiveContainer,{width:'100%',height:280},
@@ -1574,6 +1595,259 @@ const CA_REASON_LABELS = {'reason_car_na':'Car not available','reason_seller':'S
 const CA_REASON_COLORS = ['#3E47DD','#ef4444','#f97316','#f59e0b','#94a3b8','#d1d5db'];
 const CA_TABLE_ID = 'tblj2a4OS6b7bD9mq';
 const CA_API_URL = `https://api.airtable.com/v0/${BASE_ID}/${CA_TABLE_ID}?sort%5B0%5D%5Bfield%5D=Month&sort%5B0%5D%5Bdirection%5D=asc&pageSize=100`;
+
+// === CHART INFO DATA ===
+const CHART_INFO = {
+  'carvago_orders': {
+    title: 'Carvago — Orders by Month',
+    icon: '📊',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční počty objednávek ve stavech Contract Paid, Contract Accepted a Lost (storno). Zobrazuje pouze objednávky, které dosáhly minimálně stavu Contract Accepted.'},
+      {title:'Kategorie',tags:[
+        {label:'Contract Paid — zaplacená objednávka',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Contract Accepted — přijatá, nezaplacená',color:'#f59e0b',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Lost — stornovaná (po Accepted/Paid)',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      ]},
+      {title:'Priorita kategorizace',text:'Každá objednávka se počítá pouze jednou. Priorita: Lost → Canceled With Alternative → Paid → Accepted. Objednávka s Lost Date i Contract Paid Date je vždy Lost.'},
+      {title:'Přiřazení do měsíce',filters:[
+        {label:'Paid',value:'dle Contract Paid Date'},
+        {label:'Accepted',value:'dle Contract Accepted Date'},
+        {label:'Lost',value:'dle Lost Date nebo Canceled With Alternative Date'},
+      ]},
+    ],
+  },
+  'instamotion_orders': {
+    title: 'Instamotion — Orders by Month',
+    icon: '📊',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční počty Instamotion objednávek ve stavech Contract Paid, Contract Accepted a Lost. Stejná logika jako Carvago, filtrováno na Instamotion Customer = 1.'},
+      {title:'Kategorie',tags:[
+        {label:'Contract Paid — zaplacená objednávka',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Contract Accepted — přijatá, nezaplacená',color:'#f59e0b',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Lost — stornovaná (po Accepted/Paid)',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      ]},
+      {title:'Priorita',text:'Lost → Canceled With Alternative → Paid → Accepted. Přiřazení do měsíce dle relevantního datumu.'},
+    ],
+  },
+  'carvago_lost': {
+    title: 'Carvago — Lost Orders by Reason',
+    icon: '📉',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční počty ztracených Carvago objednávek rozdělených do 6 skupin důvodů. Tooltip zobrazuje procentuální rozložení.'},
+      {title:'Skupiny důvodů',tags:[
+        {label:'Car was sold',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'Car not available',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Customer side',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
+        {label:'Seller side',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'Car condition',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Other',color:'#14b8a6',bg:'#f0fdfa',fg:'#115e59'},
+      ]},
+      {title:'Filtry',filters:[
+        {label:'Zákazník',value:'pouze Carvago (Instamotion Customer = 0)'},
+        {label:'Podmínka',value:'musí mít Lost Date nebo Canceled With Alternative Date'},
+      ]},
+      {title:'Časová osa',text:'Lost Date (priorita), jinak Canceled With Alternative Date. Mapování důvodů z polí Sales LOST reason code a Operations Reason Code.'},
+    ],
+  },
+  'instamotion_lost': {
+    title: 'Instamotion — Lost Orders by Reason',
+    icon: '📉',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční počty ztracených Instamotion objednávek po skupinách důvodů. Stejná logika mapování jako Carvago, filtrováno na Instamotion Customer = 1.'},
+      {title:'Skupiny důvodů',tags:[
+        {label:'Car was sold',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'Car not available',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Customer side',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
+        {label:'Seller side',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'Car condition',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Other',color:'#14b8a6',bg:'#f0fdfa',fg:'#115e59'},
+      ]},
+      {title:'Časová osa',text:'Lost Date (priorita), jinak Canceled With Alternative Date.'},
+    ],
+  },
+  '1st_call': {
+    title: '1st Call — Done / In Progress / Closed',
+    icon: '📞',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Týdenní počty CarAuditů v rané fázi (1st Call), kategorizované podle workflow stavu: Done (prošly, čekají na výběr), In Progress (zpracovávají se), Closed (zamítnuté).'},
+      {title:'Kategorie',tags:[
+        {label:'Done — CA Awaiting Selection Date vyplněno, bez reject',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'In Progress — Status ∈ {New CA, Data Val, Car Check, VIN Check}, bez reject',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Closed — CarAudit Status obsahuje "reject"',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      ]},
+      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po ISO týdnech.'},
+    ],
+  },
+  '1st_call_reason': {
+    title: '1st Call — Closed: reason breakdown',
+    icon: '❌',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Týdenní rozpad důvodů zamítnutí v 1st Call fázi. Pouze Closed záznamy (rejected před Awaiting Selection).'},
+      {title:'Zdroj',text:'CA Reason Code skupiny: Car not available, Seller fault, Car condition, Client cancelled, Auto reject, Other.'},
+      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po ISO týdnech.'},
+    ],
+  },
+  'caraudit_pipeline': {
+    title: 'CarAudit — In Progress / Done / Closed',
+    icon: '📊',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Týdenní počty CarAuditů v pokročilé fázi (po 1st Call), kategorizované podle stavu: In Progress, Done (dokončeno), Closed (zamítnuto).'},
+      {title:'Kategorie',tags:[
+        {label:'In Progress — Awaiting Sel+APPROVED / Auditor Sel|Order|Prep|Result bez reject',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Done — Status = CarAudit Done',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Closed — Auditor Sel|Order|Prep|Result s reject',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      ]},
+      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po ISO týdnech.'},
+    ],
+  },
+  'caraudit_reason': {
+    title: 'CarAudit — Closed: Reason breakdown',
+    icon: '🔴',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Týdenní rozpad důvodů zamítnutí v CarAudit pipeline (po 1st Call fázi). Pouze Closed záznamy.'},
+      {title:'Zdroj',text:'CA Reason Code skupiny: Car not available, Seller fault, Car condition, Client, Auto reject, Other. Dle CA New CarAudit Date.'},
+    ],
+  },
+  'ca_recommended': {
+    title: 'CA done — Recommended / Not recommended',
+    icon: '✅',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Týdenní počty dokončených CarAuditů rozdělených na Recommended (doporučeno ke koupi) a Not recommended (nedoporučeno).'},
+      {title:'Kategorie',tags:[
+        {label:'Recommended — CA Reason Code = „Approved"',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Not recommended — CA Reason Code = „Not recommended"',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+      ]},
+      {title:'Filtry',filters:[
+        {label:'Status',value:'pouze CarAudit Done'},
+        {label:'Zákazník',value:'pouze Carvago (ne Instamotion)'},
+        {label:'Ostatní',value:'záznamy s jiným CA Reason Code se nezahrnují'},
+      ]},
+      {title:'Časová osa',text:'Dle CA CarAudit Done Date, seskupeno po ISO týdnech.'},
+    ],
+  },
+  'acceptance_rate': {
+    title: 'CA done — Acceptance rate (monthly)',
+    icon: '📊',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční procento Recommended CarAuditů, které zákazník skutečně přijal (accepted). Acceptance rate = accepted / recommended × 100%.'},
+      {title:'Časová osa',text:'Dle CA CarAudit Done Date, seskupeno po měsících.'},
+    ],
+  },
+  'cost_structure': {
+    title: 'CarAudit — Cost structure (weekly)',
+    icon: '💶',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Týdenní procentuální rozložení CarAuditů do cenových kategorií podle CarAudit Amount. 100% stacked bar chart.'},
+      {title:'Časová osa',text:'Dle Done / Closed date, seskupeno po ISO týdnech.'},
+    ],
+  },
+  'cost_structure_de': {
+    title: 'CarAudit — Cost structure DE (weekly)',
+    icon: '💶',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Stejný graf jako Cost structure, ale filtrováno pouze na CA Vendor Country = DE (Německo).'},
+    ],
+  },
+  'vin_check_monthly': {
+    title: 'CA New → VIN Check (NET hod.)',
+    icon: '⏱️',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Procentuální rozložení doby odezvy od New CarAudit po VIN Check v NET pracovních hodinách. Pracovní hodiny: Po–Pá 08:00–17:00, So 08:00–13:00.'},
+      {title:'Časová osa',text:'Seskupeno po měsících dle CA New CarAudit Date.'},
+    ],
+  },
+  'vin_check_weekly': {
+    title: 'CA New → VIN Check (NET hrs, weekly)',
+    icon: '⏱️',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Stejný graf jako měsíční verze, ale seskupeno po ISO týdnech.'},
+    ],
+  },
+  'auditor_monthly': {
+    title: 'CA Auditor Selection → Done/Closed (NET hrs, monthly)',
+    icon: '⏱️',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Rozložení doby od Auditor Selection po Done/Closed v NET pracovních hodinách. Seskupeno po měsících dle data uzavření.'},
+    ],
+  },
+  'auditor_weekly': {
+    title: 'CA Auditor Selection → Done/Closed (NET hrs, weekly)',
+    icon: '⏱️',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Stejný graf jako měsíční verze, seskupeno po ISO týdnech.'},
+    ],
+  },
+  'avg_price': {
+    title: 'CarAudit — Average price EUR / month',
+    icon: '💰',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční průměrná hodnota CarAudit Amount v EUR. Zahrnuje pouze CarAudity s vyplněnou hodnotou (včetně 0). Prázdné hodnoty se nezapočítávají.'},
+      {title:'Filtry',filters:[
+        {label:'Zahrnuté',value:'CarAudit Amount ≥ 0 (numerické)'},
+        {label:'Vyloučené',value:'prázdné nebo "-" hodnoty'},
+      ]},
+      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po měsících.'},
+    ],
+  },
+  'cost_per_car': {
+    title: 'EUR CarAudit cost per 1 sold car (monthly)',
+    icon: '💶',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční náklady na CarAudit na jednu prodanou objednávku. Výpočet: (avg_amount × count_with_amount) / Contract Paid (Carvago).'},
+      {title:'Časová osa',text:'Seskupeno po měsících.'},
+    ],
+  },
+  'revenue_cost': {
+    title: 'Revenue vs Cost — CarAudit margin (monthly)',
+    icon: '💶',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Měsíční marže CarAuditů = Revenue − Cost. Zelené sloupce = kladná marže, červené = záporná. Měsíce bez revenue dat se nezobrazují.'},
+      {title:'Zdroje dat',filters:[
+        {label:'Revenue',value:'Google Sheets FA_CA_2025 → REVE_CA_FROM_2024 → řádek "Total"'},
+        {label:'Cost',value:'avg_amount × count_with_amount (z Airtable CarAuditData)'},
+        {label:'Margin',value:'Revenue − Cost'},
+      ]},
+      {title:'Časová osa',text:'Seskupeno po měsících, formát M/YY.'},
+    ],
+  },
+};
+
+// === INFO BUTTON + MODAL COMPONENT ===
+const InfoButton = ({infoKey}) => {
+  const [open, setOpen] = useState(false);
+  const info = CHART_INFO[infoKey];
+  if (!info) return null;
+  return <>
+    <button className="info-btn" onClick={(e)=>{e.stopPropagation();setOpen(true);}} title="Jak se graf počítá?">i</button>
+    {open && <div className="info-modal-overlay" onClick={()=>setOpen(false)}>
+      <div className="info-modal" onClick={e=>e.stopPropagation()}>
+        <div className="info-modal-header">
+          <div className="info-modal-title"><span>{info.icon}</span> {info.title}</div>
+          <button className="info-modal-close" onClick={()=>setOpen(false)}>✕</button>
+        </div>
+        <div className="info-modal-body">
+          {info.sections.map((s,i) => <React.Fragment key={i}>
+            {i > 0 && <div className="info-divider"/>}
+            <div className="info-section">
+              <div className="info-section-title">{s.title}</div>
+              {s.text && <p>{s.text}</p>}
+              {s.tags && <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                {s.tags.map((t,j) => <span key={j} className="info-tag" style={{background:t.bg,color:t.fg}}>
+                  <span className="dot" style={{background:t.color}}/> {t.label}
+                </span>)}
+              </div>}
+              {s.filters && s.filters.map((f,j) => <div key={j} className="info-filter"><b>{f.label}:</b> {f.value}</div>)}
+            </div>
+          </React.Fragment>)}
+        </div>
+      </div>
+    </div>}
+  </>;
+};
+
+// Export InfoButton to window for plain-JS components
+window.InfoButton = InfoButton;
+window.CHART_INFO = CHART_INFO;
 
 // plain-script component refs (hooks work when used as <CompName .../> in JSX)
 const AvgCostChartComp = window.AvgCostChart;
@@ -1705,7 +1979,7 @@ const StackLabel = ({x,y,width,value}) => {
 };
 
 // === CHART COMPONENT ===
-const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal}) => {
+const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey}) => {
   const reversed = [...data].reverse();  // newest left, oldest right
   // Totals for the entire displayed period
   const periodTotals = {
@@ -1716,7 +1990,7 @@ const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal}) => {
   return (
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:16}}>
-      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
       {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
     </div>
     <ResponsiveContainer width="100%" height={360}>
@@ -1773,12 +2047,12 @@ const TotalLabel = ({x,y,width,height,value,index,data,prefix}) => {
 };
 
 // === LOST CHART COMPONENT ===
-const LostChart = ({data, title, subtitle, prefix}) => {
+const LostChart = ({data, title, subtitle, prefix, infoKey}) => {
   const reversed = [...data].reverse();  // newest left, oldest right
   return (
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:16}}>
-      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
       {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
     </div>
     <ResponsiveContainer width="100%" height={360}>
@@ -1801,12 +2075,12 @@ const LostChart = ({data, title, subtitle, prefix}) => {
 };
 
 // === CARAUDIT CHART COMPONENT ===
-const CAChart = ({data, title, subtitle, keys, labels, colors}) => {
+const CAChart = ({data, title, subtitle, keys, labels, colors, infoKey}) => {
   const reversed = [...data].reverse();  // newest left, oldest right
   return (
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:16}}>
-      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+      <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
       {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
     </div>
     <ResponsiveContainer width="100%" height={300}>
@@ -1829,7 +2103,7 @@ const CAChart = ({data, title, subtitle, keys, labels, colors}) => {
 };
 
 // === WEEKLY CARAUDIT DONE CHART ===
-const WeeklyCAChart = ({data, title, subtitle}) => {
+const WeeklyCAChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const wButtons = [13, 26, 52, data.length];
   const wLabels = ['13T','26T','52T',`${data.length}T`];
@@ -1883,7 +2157,7 @@ const WeeklyCAChart = ({data, title, subtitle}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -1916,7 +2190,7 @@ const WeeklyCAChart = ({data, title, subtitle}) => {
 
 
 // === CA ACCEPTED RATE CHART (monthly) ===
-const AcceptedCAChart = ({data, title, subtitle}) => {
+const AcceptedCAChart = ({data, title, subtitle, infoKey}) => {
   const reversed = [...data].reverse(); // newest left
 
   const CustomTick = ({x, y, payload}) => {
@@ -1964,7 +2238,7 @@ const AcceptedCAChart = ({data, title, subtitle}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
       </div>
     </div>
@@ -1994,7 +2268,7 @@ const CA_COST_BUCKETS = [
   {key:'p145plus',label:'> 145 EUR',     color:'#ef4444'},
 ];
 
-const CostStructureChart = ({data, title, subtitle}) => {
+const CostStructureChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const wButtons = [13, 26, 52, data.length];
   const wLabels = ['13T','26T','52T',`${data.length}T`];
@@ -2050,7 +2324,7 @@ const CostStructureChart = ({data, title, subtitle}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2095,7 +2369,7 @@ const CA_SLA_BUCKETS = [
   {key:'b48plus', label:'> 48 business hours', color:'#ef4444'},
 ];
 
-const CASlaChart = ({data, title, subtitle}) => {
+const CASlaChart = ({data, title, subtitle, infoKey}) => {
   const [range, setRange] = useState(data.length);
   const buttons = [6, 12, 24, data.length];
   const btnLabels = ['6M','12M','24M',`${data.length}M`];
@@ -2133,7 +2407,7 @@ const CASlaChart = ({data, title, subtitle}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2171,7 +2445,7 @@ const CASlaChart = ({data, title, subtitle}) => {
 
 
 // === CA SLA WEEKLY CHART (CA New to CA VIN Check, weekly view) ===
-const CASlaWeeklyChart = ({data, title, subtitle}) => {
+const CASlaWeeklyChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const wButtons = [13, 26, 52, data.length];
   const wLabels = ['13T','26T','52T',`${data.length}T`];
@@ -2225,7 +2499,7 @@ const CASlaWeeklyChart = ({data, title, subtitle}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2272,7 +2546,7 @@ const CA_AUDSEL_BUCKETS = [
   {key:'b72plus', label:'> 72 business hours', color:'#ef4444'},
 ];
 
-const CAudSelChart = ({data, title, subtitle, weekly=false}) => {
+const CAudSelChart = ({data, title, subtitle, weekly=false, infoKey}) => {
   const initRange = weekly ? 26 : data.length;
   const [range, setRange] = useState(initRange);
   const buttons = weekly ? [13,26,52,data.length] : [6,12,24,data.length];
@@ -2327,7 +2601,7 @@ const CAudSelChart = ({data, title, subtitle, weekly=false}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2372,7 +2646,7 @@ const CAudSelChart = ({data, title, subtitle, weekly=false}) => {
 // === 1ST CALL: CLOSED REASON CODE CHART ===
 const FC_CLOSED_KEYS = window.FC_CLOSED_KEYS;
 
-const FCClosedReasonChart = ({data, title, subtitle}) => {
+const FCClosedReasonChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const n = data ? data.length : 0;
   const wButtons = [13, 26, 52, n];
@@ -2460,7 +2734,7 @@ const FCClosedReasonChart = ({data, title, subtitle}) => {
 
 
 // === CARAUDIT: IN PROGRESS / DONE / CLOSED (weekly) ===
-const CarAuditWeeklyChart = ({data, title, subtitle}) => {
+const CarAuditWeeklyChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const [modal, setModal] = useState(null);
   const openModal = (d, bucket, label) => {
@@ -2557,7 +2831,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle}) => {
 
 
 // === CA CLOSED REASON WEEKLY CHART ===
-const CAClosedReasonChart = ({data, title, subtitle}) => {
+const CAClosedReasonChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const n = data ? data.length : 0;
   const wButtons = [13, 26, 52, n];
@@ -2635,7 +2909,7 @@ const CAClosedReasonChart = ({data, title, subtitle}) => {
 };
 
 // === 1ST CALL STATUS WEEKLY CHART ===
-const FirstCallChart = ({data, title, subtitle}) => {
+const FirstCallChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
   const n = data ? data.length : 0;
   const wButtons = [13, 26, 52, n];
@@ -2697,7 +2971,7 @@ const FirstCallChart = ({data, title, subtitle}) => {
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <div>
-        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}</h2>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2884,17 +3158,17 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
 
         {/* Carvago Orders Chart */}
         <Chart data={data} title={`Carvago — Orders by Month`} subtitle={`Updated ${updated}`}
-          paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMax * 1.1)}/>
+          paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMax * 1.1)} infoKey="carvago_orders"/>
 
         {/* Instamotion Orders Chart */}
         {hasInsta && <Chart data={instaData} title={`Instamotion — Orders by Month`} subtitle={`Updated ${updated}`}
-          paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMax * 1.1)}/>}
+          paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMax * 1.1)} infoKey="instamotion_orders"/>}
 
         {/* Carvago Lost Reasons Chart */}
-        <LostChart data={cld} title={`Carvago — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="cl"/>
+        <LostChart data={cld} title={`Carvago — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="cl" infoKey="carvago_lost"/>
 
         {/* Instamotion Lost Reasons Chart */}
-        {hasInsta && <LostChart data={instaLost} title={`Instamotion — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="il"/>}
+        {hasInsta && <LostChart data={instaLost} title={`Instamotion — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="il" infoKey="instamotion_lost"/>}
 
         {/* CarAudit Section Divider */}
         {caData.length > 0 && <div style={{display:'flex',alignItems:'center',gap:12,margin:'24px 0 16px'}}>
@@ -2908,6 +3182,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={firstCallData}
           title="📞 1st Call — Done / In Progress / Closed (weekly)"
           subtitle="Done = CA Awaiting Selection Date filled · In Progress = no reject · Closed = rejected · by CA New CarAudit Date"
+          infoKey="1st_call"
         />}
 
         {fcClosedReasonData && fcClosedReasonData.length > 0 && <div style={{borderLeft:'4px solid #ef4444',borderRadius:10,overflow:'hidden',marginBottom:16,background:'#FFF5F5'}}>
@@ -2915,6 +3190,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
             data={fcClosedReasonData}
             title="❌ 1st Call — Closed: reason breakdown (weekly)"
             subtitle="CA Reason Code groups · only Closed records (rejected before Awaiting Selection)"
+            infoKey="1st_call_reason"
           />
         </div>}
 
@@ -2929,6 +3205,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caWeeklyStatusData}
           title="📊 CarAudit — In Progress / Done / Closed (weekly)"
           subtitle="InProgress = Awaiting Sel+APPROVED / Auditor Sel|Audit Order|Preparation|Audit Result bez reject · Done = CarAudit Done · Closed = Auditor Sel|Audit Order|Preparation|Audit Result s reject"
+          infoKey="caraudit_pipeline"
         />}
 
         {/* CarAudit Closed Reason Chart */}
@@ -2937,6 +3214,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
             data={caClosedReasonData}
             title="🔴 CarAudit — Closed · Reason breakdown (weekly)"
             subtitle="Pouze Closed CA · CA Reason Code · dle CA New CarAudit Date"
+            infoKey="caraudit_reason"
           />
         </div>}
                 {/* CarAudit KPI Cards */}
@@ -2956,6 +3234,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caWeeklyData}
           title="✅ CA done — Recommended / Not recommended"
           subtitle={`CA CarAudit Done Date · Approved = Recommended · ${caWeeklyData.length} weeks`}
+          infoKey="ca_recommended"
         />}
 
         {/* CA Done — Accepted Rate (monthly) */}
@@ -2963,6 +3242,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caAcceptedData}
           title="📊 CA done — Acceptance rate (monthly)"
           subtitle="% of Recommended CarAudits accepted by customer · by CA CarAudit Done Date"
+          infoKey="acceptance_rate"
         />}
 
         {/* CarAudit Cost Structure Chart */}
@@ -2970,6 +3250,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caWeeklyCostData}
           title="💶 CarAudit — Cost structure (weekly)"
           subtitle="% share of price categories · Done / Closed date"
+          infoKey="cost_structure"
         />}
 
         {/* CarAudit Cost Structure DE Chart */}
@@ -2977,6 +3258,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caWeeklyCostDataDE}
           title="💶 CarAudit — Cost structure DE (weekly)"
           subtitle="CA Vendor Country = DE only · % share of price categories"
+          infoKey="cost_structure_de"
         />}
 
         {/* CA SLA: CA New to VIN Check */}
@@ -2984,6 +3266,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caSlaVinData}
           title="⏱️ CA New → VIN Check (NET hod.)"
           subtitle="% share of response time buckets · Mon-Fri 08:00-17:00 · Sat 08:00-13:00 · grouped by month of CA New"
+          infoKey="vin_check_monthly"
         />}
 
         {/* CA SLA Weekly: CA New to VIN Check */}
@@ -2991,6 +3274,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caSlaVinWeeklyData}
           title="⏱️ CA New → VIN Check (NET hrs, weekly)"
           subtitle="% share of response time buckets · Mon-Fri 08:00-17:00 · Sat 08:00-13:00 · grouped by week of CA New"
+          infoKey="vin_check_weekly"
         />}
 
         {/* CA SLA: Auditor Selection to Done/Closed (monthly) */}
@@ -2998,6 +3282,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caAudSelMonthly}
           title="⏱️ CA Auditor Selection → Done/Closed (NET hrs, monthly)"
           subtitle="CA Auditor Selection Date to CA Done or Closed · grouped by month of close"
+          infoKey="auditor_monthly"
         />}
 
         {/* CA SLA: Auditor Selection to Done/Closed (weekly) */}
@@ -3006,6 +3291,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           title="⏱️ CA Auditor Selection → Done/Closed (NET hrs, weekly)"
           subtitle="CA Auditor Selection Date to CA Done or Closed · grouped by week of close"
           weekly={true}
+          infoKey="auditor_weekly"
         />}
 
         {/* CarAudit Avg Cost Chart */}
@@ -3013,6 +3299,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caData}
           title="CarAudit — Average price EUR / month"
           subtitle="CarAudits with a value in CarAudit Amount only (incl. 0)"
+          infoKey="avg_price"
         />}
 
         {/* EUR cost per CarAudit per 1 sold car */}
@@ -3020,6 +3307,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caCostData}
           title="💶 EUR CarAudit cost per 1 sold car (monthly)"
           subtitle="(avg_amount × count_with_amount) / cp · Carvago Paid"
+          infoKey="cost_per_car"
         />}
 
         {/* Revenue vs Cost (Margin) */}
@@ -3027,6 +3315,7 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           data={caMarginSlice}
           title="💶 Revenue vs Cost — CarAudit margin (monthly)"
           subtitle="Revenue = FA_CA_2025 › REVE_CA_FROM_2024 Total · Cost = avg_amount × count · Margin = Revenue − Cost"
+          infoKey="revenue_cost"
         />}
 
         {/* Footer */}
