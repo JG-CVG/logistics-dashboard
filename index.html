@@ -3041,6 +3041,7 @@ const DRActiveChart = ({data, title, subtitle, infoKey}) => {
         {statusEntries.map((s,i) => (
           <Bar key={s.key} dataKey={s.key} name={s.label} stackId="a" fill={s.color}
             radius={i===statusEntries.length-1?[3,3,0,0]:[0,0,0,0]}
+            isAnimationActive={false}
             label={i===statusEntries.length-1 ? renderLabelTotal : renderLabel}/>
         ))}
       </BarChart>
