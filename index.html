@@ -2689,7 +2689,7 @@ const FCClosedReasonChart = ({data, title, subtitle, infoKey}) => {
   <div style={{background:'#fff',borderRadius:12,padding:'20px 24px',marginBottom:20,boxShadow:'0 1px 4px rgba(31,43,89,.07)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4,flexWrap:'wrap',gap:8}}>
       <div>
-        <div style={{fontWeight:700,fontSize:15,color:'#1F2B59'}}>{title}</div>
+        <div style={{fontWeight:700,fontSize:15,color:'#1F2B59'}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</div>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2790,7 +2790,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle, infoKey}) => {
   <div style={{background:'#fff',borderRadius:12,padding:'20px 24px',marginBottom:20,boxShadow:'0 1px 4px rgba(31,43,89,.07)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4,flexWrap:'wrap',gap:8}}>
       <div>
-        <div style={{fontWeight:700,fontSize:15,color:'#1F2B59'}}>{title}</div>
+        <div style={{fontWeight:700,fontSize:15,color:'#1F2B59'}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</div>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
@@ -2872,7 +2872,7 @@ const CAClosedReasonChart = ({data, title, subtitle, infoKey}) => {
   <div style={{background:'#fff',borderRadius:12,padding:'20px 24px',marginBottom:20,boxShadow:'0 1px 4px rgba(31,43,89,.07)'}}>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4,flexWrap:'wrap',gap:8}}>
       <div>
-        <div style={{fontWeight:700,fontSize:15,color:'#1F2B59'}}>{title}</div>
+        <div style={{fontWeight:700,fontSize:15,color:'#1F2B59'}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</div>
         {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
       </div>
       <div style={{display:'flex',gap:4}}>
