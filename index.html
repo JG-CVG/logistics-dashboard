@@ -3003,7 +3003,7 @@ const DRActiveChart = ({data, title, subtitle, infoKey}) => {
     if (!d) return null;
     return (
       <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)',minWidth:240}}>
-        <div style={{fontWeight:700,marginBottom:6}}>{d.ageGroup} \u00b7 {d.total} cases</div>
+        <div style={{fontWeight:700,marginBottom:6}}>{d.ageGroup} · {d.total} cases</div>
         {statusEntries.map((s,i) => {
           const cnt = d[s.key]||0;
           if (!cnt) return null;
@@ -3046,9 +3046,9 @@ const DRActiveChart = ({data, title, subtitle, infoKey}) => {
       </BarChart>
     </ResponsiveContainer>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
-      <div style={{fontSize:10,color:'#94a3b8',whiteSpace:'nowrap',fontStyle:'italic'}}>\u21bb {window.DATA_LAST_UPDATED||'\u2014'}</div>
+      <div style={{fontSize:10,color:'#94a3b8',whiteSpace:'nowrap',fontStyle:'italic'}}>↻ {window.DATA_LAST_UPDATED||'—'}</div>
       <div style={{fontSize:10,color:'#9ca3af',textAlign:'right'}}>
-        Aktivn\u00ed = bez Car Registration Done Date i Closed Date \u00b7 st\u00e1\u0159\u00ed = pracovn\u00ed dny od Coordination with Vendor Date
+        Aktivní = bez Car Registration Done Date i Closed Date · stáří = pracovní dny od Coordination with Vendor Date
       </div>
     </div>
   </div>
