@@ -2961,7 +2961,7 @@ const DRActiveChart = ({data, title, subtitle, infoKey}) => {
   const pivoted = DR_AGE_BUCKETS.map(b => {
     const row = {ageGroup: b.label, total: 0};
     data.forEach(d => {
-      const safeKey = d.status.replace(/[^a-zA-Z0-9]/g,'_');
+      const safeKey = 's_' + d.status.replace(/[^a-zA-Z0-9]/g,'_');
       row[safeKey] = d[b.key] || 0;
       row.total += d[b.key] || 0;
     });
@@ -2969,7 +2969,7 @@ const DRActiveChart = ({data, title, subtitle, infoKey}) => {
   });
 
   const statusEntries = data.map((d,i) => ({
-    key: d.status.replace(/[^a-zA-Z0-9]/g,'_'),
+    key: 's_' + d.status.replace(/[^a-zA-Z0-9]/g,'_'),
     label: d.status,
     color: DR_STATUS_COLORS[i % DR_STATUS_COLORS.length]
   }));
