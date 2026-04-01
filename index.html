@@ -829,6 +829,16 @@ const CA_AUDSEL_WEEKLY_DATA = [
 ];
 
 
+// === DOCUMENTS & REGISTRATION: ACTIVE CASES DATA ===
+
+window.DR_ACTIVE_DATA = [
+{status:"2/6 Waiting For Registration Documents",wd_0_5:22,wd_6_10:10,wd_11_15:3,wd_16_20:2,wd_over_20:3,total:40},
+{status:"4/6 Forwarded To Registration Service",wd_0_5:2,wd_6_10:4,wd_11_15:1,wd_16_20:2,wd_over_20:1,total:10},
+{status:"0/0 Clarification Case Closed",wd_0_5:0,wd_6_10:0,wd_11_15:0,wd_16_20:0,wd_over_20:2,total:2},
+{status:"5/6 Received By Registration Service",wd_0_5:0,wd_6_10:1,wd_11_15:0,wd_16_20:1,wd_over_20:0,total:2},
+{status:"Request Sent",wd_0_5:1,wd_6_10:0,wd_11_15:0,wd_16_20:0,wd_over_20:0,total:1}
+];
+
 // === 1ST CALL STATUS WEEKLY DATA ===
 
 window.FIRST_CALL_WEEKLY_DATA = [
@@ -1809,6 +1819,25 @@ const CHART_INFO = {
         {label:'Margin',value:'Revenue − Cost'},
       ]},
       {title:'Časová osa',text:'Seskupeno po měsících, formát M/YY.'},
+    ],
+  },
+  'dr_active': {
+    title: 'Instamotion — Active Document & Registration Cases',
+    icon: '📋',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Počty aktivních Document & Registration cases rozdělených dle Kroschke Registration Status a stáří (pracovní dny od Coordination with Vendor Date k dnešnímu dni).'},
+      {title:'Definice aktivního case',text:'Case nemá vyplněné Car Registration Done Date ANI Car Registration Closed Date — tzn. není dokončen ani zrušen.'},
+      {title:'Skupiny stáří (pracovní dny)',tags:[
+        {label:'0–5 WD',color:'#22c55e',bg:'#f0fdf4',fg:'#166534'},
+        {label:'6–10 WD',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'11–15 WD',color:'#f59e0b',bg:'#fffbeb',fg:'#92400e'},
+        {label:'16–20 WD',color:'#f97316',bg:'#fff7ed',fg:'#9a3412'},
+        {label:'>20 WD',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+      ]},
+      {title:'Filtry',filters:[
+        {label:'Stáří',value:'Pracovní dny od Coordination with Vendor Date k dnešnímu datu'},
+        {label:'Aktivní',value:'Car Registration Done Date = prázdné AND Car Registration Closed Date = prázdné'},
+      ]},
     ],
   },
 };
@@ -2909,6 +2938,101 @@ const CAClosedReasonChart = ({data, title, subtitle, infoKey}) => {
   );
 };
 
+// === DOCUMENTS & REGISTRATION: ACTIVE CASES CHART ===
+const DR_AGE_BUCKETS = [
+  {key:'wd_0_5',   label:'0–5 WD',   color:'#22c55e'},
+  {key:'wd_6_10',  label:'6–10 WD',  color:'#84cc16'},
+  {key:'wd_11_15', label:'11–15 WD', color:'#f59e0b'},
+  {key:'wd_16_20', label:'16–20 WD', color:'#f97316'},
+  {key:'wd_over_20',label:'>20 WD',  color:'#ef4444'},
+];
+
+const DRActiveChart = ({data, title, subtitle, infoKey}) => {
+  if (!data || data.length === 0) return null;
+
+  const totalAll = data.reduce((s,d) => s + d.total, 0);
+
+  const renderLabel = (props) => {
+    const {x, y, width, value} = props;
+    if (!value || value === 0 || width < 18) return null;
+    return <text x={x+width/2} y={y+12} textAnchor="middle" fontSize={9} fontWeight={600} fill="#fff">{value}</text>;
+  };
+
+  const renderLabelTotal = (props) => {
+    const {x, y, width, value, index} = props;
+    const d = data[index];
+    if (!d) return null;
+    const tot = d.total || 0;
+    const segment = value || 0;
+    const elems = [];
+    if (segment > 0 && width >= 18) {
+      elems.push(<text key="seg" x={x+width/2} y={y+12} textAnchor="middle" fontSize={9} fontWeight={600} fill="#fff">{segment}</text>);
+    }
+    if (tot > 0) {
+      elems.push(<text key="tot" x={x+width/2} y={y-6} textAnchor="middle" fontSize={10} fontWeight={700} fill="#1F2B59">{tot}</text>);
+    }
+    return <g>{elems}</g>;
+  };
+
+  const renderTooltip = (props) => {
+    const {active, payload, label} = props;
+    if (!active || !payload || !payload.length) return null;
+    const d = data.find(s => s.status === label);
+    if (!d) return null;
+    return (
+      <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)',minWidth:200}}>
+        <div style={{fontWeight:700,marginBottom:6}}>{d.status} · {d.total} cases</div>
+        {DR_AGE_BUCKETS.map((b,i) => {
+          const cnt = d[b.key]||0;
+          if (!cnt) return null;
+          const pct = d.total ? Math.round(cnt/d.total*100) : 0;
+          return (
+            <div key={i} style={{display:'flex',justifyContent:'space-between',gap:16,marginBottom:2}}>
+              <span><span style={{display:'inline-block',width:10,height:10,borderRadius:2,background:b.color,marginRight:6,verticalAlign:'middle'}}/>{b.label}</span>
+              <span style={{fontWeight:600}}>{cnt} <span style={{color:'#9ca3af'}}>({pct}%)</span></span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  return (
+  <div style={{background:'#fff',borderRadius:12,padding:'20px 24px',marginBottom:20,boxShadow:'0 1px 4px rgba(31,43,89,.07)'}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4,flexWrap:'wrap',gap:8}}>
+      <div>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
+        {subtitle && <div style={{fontSize:11,color:'#7B87A8',marginTop:2}}>{subtitle}</div>}
+      </div>
+      <div style={{background:'#f0f9ff',borderRadius:8,padding:'6px 14px',border:'1px solid #bae6fd'}}>
+        <span style={{fontSize:13,fontWeight:700,color:'#0369a1'}}>{totalAll}</span>
+        <span style={{fontSize:11,color:'#7B87A8',marginLeft:6}}>active cases</span>
+      </div>
+    </div>
+    <ResponsiveContainer width="100%" height={320}>
+      <BarChart data={data} margin={{left:0,right:10,top:24,bottom:60}} barCategoryGap="20%">
+        <CartesianGrid strokeDasharray="3 3" vertical={false}/>
+        <XAxis dataKey="status" tick={{fontSize:10,fill:'#64748b'}} interval={0} angle={-25} textAnchor="end" height={80}/>
+        <YAxis fontSize={11}/>
+        <Tooltip content={renderTooltip}/>
+        <Legend wrapperStyle={{fontSize:11,paddingTop:8}}/>
+        {DR_AGE_BUCKETS.map((b,i) => (
+          <Bar key={b.key} dataKey={b.key} name={b.label} stackId="a" fill={b.color}
+            radius={i===DR_AGE_BUCKETS.length-1?[3,3,0,0]:[0,0,0,0]}
+            label={i===DR_AGE_BUCKETS.length-1 ? renderLabelTotal : renderLabel}/>
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:4}}>
+      <div style={{fontSize:10,color:'#94a3b8',whiteSpace:'nowrap',fontStyle:'italic'}}>↻ {window.DATA_LAST_UPDATED||'—'}</div>
+      <div style={{fontSize:10,color:'#9ca3af',textAlign:'right'}}>
+        Aktivní = bez Car Registration Done Date i Closed Date · stáří = pracovní dny od Coordination with Vendor Date
+      </div>
+    </div>
+  </div>
+  );
+};
+
 // === 1ST CALL STATUS WEEKLY CHART ===
 const FirstCallChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
@@ -3170,6 +3294,21 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
 
         {/* Instamotion Lost Reasons Chart */}
         {hasInsta && <LostChart data={instaLost} title={`Instamotion — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="il" infoKey="instamotion_lost"/>}
+
+        {/* Instamotion D&R Active Cases Chart */}
+        {window.DR_ACTIVE_DATA && window.DR_ACTIVE_DATA.length > 0 && <>
+          <div style={{display:'flex',alignItems:'center',gap:12,margin:'24px 0 16px'}}>
+            <div style={{height:2,flex:1,background:'linear-gradient(90deg,transparent,#0ea5e944)'}}/>
+            <span style={{fontSize:11,fontWeight:800,color:'#0ea5e9',textTransform:'uppercase',letterSpacing:'2px',background:'#fff',padding:'3px 14px',borderRadius:20,border:'1.5px solid #0ea5e944',boxShadow:'0 1px 6px rgba(14,165,233,.1)'}}>📋 Document &amp; Registration</span>
+            <div style={{height:2,flex:1,background:'linear-gradient(90deg,#0ea5e944,transparent)'}}/>
+          </div>
+          <DRActiveChart
+            data={window.DR_ACTIVE_DATA}
+            title="📋 Instamotion — Active Document & Registration Cases"
+            subtitle="Aktivní cases dle Kroschke Registration Status · stáří v pracovních dnech od Coordination with Vendor Date"
+            infoKey="dr_active"
+          />
+        </>}
 
         {/* CarAudit Section Divider */}
         {caData.length > 0 && <div style={{display:'flex',alignItems:'center',gap:12,margin:'24px 0 16px'}}>
