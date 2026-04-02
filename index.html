@@ -2408,15 +2408,15 @@ const CASlaChart = ({data, title, subtitle, infoKey}) => {
 
   const pctData = slice.map(d => {
     const total = CA_SLA_BUCKETS.reduce((s,b) => s+(d[b.key]||0), 0);
-    const o = {m: d.m, _total: total};
+    const o = {label: d.label, _total: total};
     CA_SLA_BUCKETS.forEach(b => { o[b.key] = total ? Math.round((d[b.key]||0)/total*100) : 0; });
     return o;
   });
 
   const SlaTooltip = ({active, payload, label}) => {
     if (!active||!payload) return null;
-    const d = pctData.find(s => s.m === label);
-    const raw = slice.find(s => s.m === label);
+    const d = pctData.find(s => s.label === label);
+    const raw = slice.find(s => s.label === label);
     return (
       <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)',minWidth:220}}>
         <div style={{fontWeight:700,marginBottom:6}}>{label} · {d?._total} CAs</div>
@@ -2456,7 +2456,7 @@ const CASlaChart = ({data, title, subtitle, infoKey}) => {
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={pctData} margin={{left:0,right:10,top:10,bottom:5}} barCategoryGap="15%">
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
-        <XAxis dataKey="m" fontSize={11} tick={{fill:'#374151'}} interval={0} angle={-45} textAnchor="end" height={50}/>
+        <XAxis dataKey="label" fontSize={11} tick={{fill:'#374151'}} interval={0} angle={-45} textAnchor="end" height={50}/>
         <YAxis tickFormatter={v => `${v}%`} domain={[0,100]} ticks={[0,25,50,75,100]} fontSize={11} width={42}/>
         <Tooltip content={<SlaTooltip/>}/>
         <Legend wrapperStyle={{fontSize:11,paddingTop:8}}/>
