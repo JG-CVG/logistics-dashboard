@@ -1614,59 +1614,64 @@ const CHART_INFO = {
     title: 'Carvago — Orders by Month',
     icon: '📊',
     sections: [
-      {title:'Co graf zobrazuje',text:'Měsíční počty objednávek ve stavech Contract Paid, Contract Accepted a Lost (storno). Zobrazuje pouze objednávky, které dosáhly minimálně stavu Contract Accepted.'},
+      {title:'Co graf zobrazuje',text:'Měsíční počty Carvago objednávek rozdělených do tří kategorií: Contract Paid, Contract Accepted a Lost. Zahrnuje pouze objednávky s vyplněným Contract Accepted Date. Filtr: Instamotion Customer = 0.'},
       {title:'Kategorie',tags:[
-        {label:'Contract Paid — zaplacená objednávka',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
-        {label:'Contract Accepted — přijatá, nezaplacená',color:'#f59e0b',bg:'#fff7ed',fg:'#c2410c'},
-        {label:'Lost — stornovaná (po Accepted/Paid)',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+        {label:'Contract Paid — objednávka dokončena platbou',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Contract Accepted — přijatá, zatím nezaplacená',color:'#f59e0b',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Lost — stornovaná nebo Canceled With Alternative',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
       ]},
-      {title:'Priorita kategorizace',text:'Každá objednávka se počítá pouze jednou. Priorita: Lost → Canceled With Alternative → Paid → Accepted. Objednávka s Lost Date i Contract Paid Date je vždy Lost.'},
-      {title:'Přiřazení do měsíce',filters:[
-        {label:'Paid',value:'dle Contract Paid Date'},
-        {label:'Accepted',value:'dle Contract Accepted Date'},
-        {label:'Lost',value:'dle Lost Date nebo Canceled With Alternative Date'},
+      {title:'Priorita kategorizace (každá objednávka se počítá JEDNOU)',filters:[
+        {label:'1. Lost (nejvyšší)',value:'Lost Date vyplněno + Contract Accepted nebo Paid Date → měsíc dle Lost Date'},
+        {label:'2. Canceled With Alt.',value:'Canceled With Alternative Date vyplněno (bez Lost Date) → počítá se jako Lost, měsíc dle Canceled Date'},
+        {label:'3. Contract Paid',value:'Contract Paid Date vyplněno (bez Lost/Canceled) → měsíc dle Paid Date'},
+        {label:'4. Contract Accepted',value:'Pouze Contract Accepted Date (bez ostatních) → měsíc dle Accepted Date'},
       ]},
+      {title:'Podmínka zahrnutí',text:'Objednávka musí mít minimálně vyplněné Contract Accepted Date. Bez tohoto pole se objednávka do grafu nezahrnuje.'},
     ],
   },
   'instamotion_orders': {
     title: 'Instamotion — Orders by Month',
     icon: '📊',
     sections: [
-      {title:'Co graf zobrazuje',text:'Měsíční počty Instamotion objednávek ve stavech Contract Paid, Contract Accepted a Lost. Stejná logika jako Carvago, filtrováno na Instamotion Customer = 1.'},
+      {title:'Co graf zobrazuje',text:'Měsíční počty Instamotion objednávek ve stavech Contract Paid, Contract Accepted a Lost. Filtr: Instamotion Customer = 1. Logika kategorizace je identická s Carvago grafem.'},
       {title:'Kategorie',tags:[
-        {label:'Contract Paid — zaplacená objednávka',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
-        {label:'Contract Accepted — přijatá, nezaplacená',color:'#f59e0b',bg:'#fff7ed',fg:'#c2410c'},
-        {label:'Lost — stornovaná (po Accepted/Paid)',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+        {label:'Contract Paid — objednávka dokončena platbou',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Contract Accepted — přijatá, zatím nezaplacená',color:'#f59e0b',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Lost — stornovaná nebo Canceled With Alternative',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
       ]},
-      {title:'Priorita',text:'Lost → Canceled With Alternative → Paid → Accepted. Přiřazení do měsíce dle relevantního datumu.'},
+      {title:'Priorita kategorizace',filters:[
+        {label:'1. Lost',value:'Lost Date vyplněno → měsíc dle Lost Date'},
+        {label:'2. Canceled With Alt.',value:'Canceled With Alternative Date (bez Lost) → měsíc dle Canceled Date, kategorie Lost'},
+        {label:'3. Contract Paid',value:'Paid Date (bez Lost/Canceled) → měsíc dle Paid Date'},
+        {label:'4. Contract Accepted',value:'Pouze Accepted Date → měsíc dle Accepted Date'},
+      ]},
+      {title:'Podmínka zahrnutí',text:'Objednávka musí mít minimálně vyplněné Contract Accepted Date.'},
     ],
   },
   'carvago_lost': {
     title: 'Carvago — Lost Orders by Reason',
     icon: '📉',
     sections: [
-      {title:'Co graf zobrazuje',text:'Měsíční počty ztracených Carvago objednávek rozdělených do 6 skupin důvodů. Tooltip zobrazuje procentuální rozložení.'},
-      {title:'Skupiny důvodů',tags:[
-        {label:'Car was sold',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
-        {label:'Car not available',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
-        {label:'Customer side',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
-        {label:'Seller side',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
-        {label:'Car condition',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
-        {label:'Other',color:'#14b8a6',bg:'#f0fdfa',fg:'#115e59'},
+      {title:'Co graf zobrazuje',text:'Měsíční počty ztracených Carvago objednávek rozdělených do 6 skupin důvodů. Tooltip zobrazuje procentuální rozložení. Filtr: Instamotion Customer = 0.'},
+      {title:'Podmínka zahrnutí',text:'Objednávka musí mít vyplněné Lost Date NEBO Canceled With Alternative Date. Měsíc: Lost Date (priorita), jinak Canceled With Alternative Date.'},
+      {title:'6 skupin důvodů',tags:[
+        {label:'Car was sold — Operations RC obsahuje "car was sold"',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'Car not available — Sales RC "car not available / no longer available" nebo Ops RC "car is unavailable / under reservation / impossible to load..."',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Customer side — Sales RC "personal reasons / doesn\'t respond / low trust / financing..." nebo Ops RC "customer withdraws / delay on customer..."',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
+        {label:'Seller side — Sales RC "fault at seller" nebo Ops RC "deal was cancelled / dealer refused / can\'t agree on docs / margin rejected..."',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'Car condition — Sales RC "bad car condition / not recommended / missing equipment" nebo Ops RC "car has major issues"',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Other — vše ostatní',color:'#14b8a6',bg:'#f0fdfa',fg:'#115e59'},
       ]},
-      {title:'Filtry',filters:[
-        {label:'Zákazník',value:'pouze Carvago (Instamotion Customer = 0)'},
-        {label:'Podmínka',value:'musí mít Lost Date nebo Canceled With Alternative Date'},
-      ]},
-      {title:'Časová osa',text:'Lost Date (priorita), jinak Canceled With Alternative Date. Mapování důvodů z polí Sales LOST reason code a Operations Reason Code.'},
+      {title:'Mapování reason kódů',text:'Pořadí priorit: Car was sold → Car not available → Seller side → Customer side → Car condition → Other. Porovnávání je case-insensitive. Zdroj: pole Sales LOST reason code a Operations Reason Code.'},
     ],
   },
   'instamotion_lost': {
     title: 'Instamotion — Lost Orders by Reason',
     icon: '📉',
     sections: [
-      {title:'Co graf zobrazuje',text:'Měsíční počty ztracených Instamotion objednávek po skupinách důvodů. Stejná logika mapování jako Carvago, filtrováno na Instamotion Customer = 1.'},
-      {title:'Skupiny důvodů',tags:[
+      {title:'Co graf zobrazuje',text:'Měsíční počty ztracených Instamotion objednávek po skupinách důvodů. Filtr: Instamotion Customer = 1. Logika mapování reason kódů je identická s Carvago grafem.'},
+      {title:'Podmínka zahrnutí',text:'Objednávka musí mít vyplněné Lost Date NEBO Canceled With Alternative Date. Měsíc: Lost Date (priorita), jinak Canceled With Alternative Date.'},
+      {title:'6 skupin důvodů',tags:[
         {label:'Car was sold',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
         {label:'Car not available',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
         {label:'Customer side',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
@@ -1674,20 +1679,25 @@ const CHART_INFO = {
         {label:'Car condition',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
         {label:'Other',color:'#14b8a6',bg:'#f0fdfa',fg:'#115e59'},
       ]},
-      {title:'Časová osa',text:'Lost Date (priorita), jinak Canceled With Alternative Date.'},
+      {title:'Mapování reason kódů',text:'Priorita: Car was sold → Car not available → Seller side → Customer side → Car condition → Other. Case-insensitive. Zdroj: Sales LOST reason code + Operations Reason Code.'},
     ],
   },
   '1st_call': {
     title: '1st Call — Done / In Progress / Closed',
     icon: '📞',
     sections: [
-      {title:'Co graf zobrazuje',text:'Týdenní počty CarAuditů v rané fázi (1st Call), kategorizované podle workflow stavu: Done (prošly, čekají na výběr), In Progress (zpracovávají se), Closed (zamítnuté).'},
-      {title:'Kategorie',tags:[
-        {label:'Done — CA Awaiting Selection Date vyplněno, bez reject',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
-        {label:'In Progress — Status ∈ {New CA, Data Val, Car Check, VIN Check}, bez reject',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
-        {label:'Closed — CarAudit Status obsahuje "reject"',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      {title:'Co graf zobrazuje',text:'Týdenní počty CarAuditů v rané fázi zpracování (1st Call: New CarAudit → Awaiting Selection), kategorizované do tří stavů. Časová osa dle CA New CarAudit Date (ISO týden).'},
+      {title:'Klíčový princip',text:'Vyplněné CA Awaiting Selection Date = 1st Call byl dokončen = Done. I kdyby CA dostala REJECT Awaiting Selection, stále platí Done — 1st Call proběhl úspěšně.'},
+      {title:'Pravidla kategorizace',tags:[
+        {label:'Done — CA Awaiting Selection Date je vyplněno (bez ohledu na následný reject)',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Closed — CarAudit Status ∈ {REJECT New CA, REJECT Data Validation, REJECT Car Check, REJECT VIN Check} — rejecty PŘED Awaiting Selection',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+        {label:'In Progress — Status ∈ {New CarAudit, Data Validation, Car Check, VIN Check} + žádný Closed reject',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
       ]},
-      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po ISO týdnech.'},
+      {title:'Důležité',filters:[
+        {label:'REJECT Awaiting Selection',value:'= Done (ne Closed) — CA dosáhla Awaiting Selection'},
+        {label:'Pořadí kontroly',value:'Done (date check) → Closed (reject check) → In Progress'},
+        {label:'Closed rejecty',value:'New CA, Data Validation, Car Check, VIN Check (před Awaiting Selection)'},
+      ]},
     ],
   },
   '1st_call_reason': {
@@ -1695,7 +1705,12 @@ const CHART_INFO = {
     icon: '❌',
     sections: [
       {title:'Co graf zobrazuje',text:'Týdenní rozpad důvodů zamítnutí v 1st Call fázi. Pouze Closed záznamy (rejected před Awaiting Selection).'},
-      {title:'Zdroj',text:'CA Reason Code skupiny: Car not available, Seller fault, Car condition, Client cancelled, Auto reject, Other.'},
+      {title:'Closed fáze (zdroj)',tags:[
+        {label:'REJECT New CA',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'REJECT Data Validation',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'REJECT Car Check',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
+        {label:'REJECT VIN Check',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      ]},
       {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po ISO týdnech.'},
     ],
   },
@@ -1703,20 +1718,25 @@ const CHART_INFO = {
     title: 'CarAudit — In Progress / Done / Closed',
     icon: '📊',
     sections: [
-      {title:'Co graf zobrazuje',text:'Týdenní počty CarAuditů v pokročilé fázi (po 1st Call), kategorizované podle stavu: In Progress, Done (dokončeno), Closed (zamítnuto).'},
-      {title:'Kategorie',tags:[
-        {label:'In Progress — Awaiting Sel+APPROVED / Auditor Sel|Order|Prep|Result bez reject',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
-        {label:'Done — Status = CarAudit Done',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
-        {label:'Closed — Auditor Sel|Order|Prep|Result s reject',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
+      {title:'Co graf zobrazuje',text:'Týdenní počty CarAuditů v pokročilé fázi (po 1st Call), kategorizované dle stavu. Pokrývá fáze: Awaiting Selection → Auditor Selection → Audit Order → CarAudit Preparation → Audit Result → CarAudit Done. Časová osa dle CA New CarAudit Date (ISO týden).'},
+      {title:'Pravidla kategorizace',tags:[
+        {label:'Done — Status = CarAudit Done (bez ohledu na CarAudit Status)',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'In Progress (A) — Status = Awaiting Selection + CarAudit Status = "APPROVED awaiting selection"',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'In Progress (B) — Status ∈ {Auditor Selection, Audit Order, CarAudit Preparation, Audit Result} + CarAudit Status NEOBSAHUJE "reject"',color:'#3E47DD',bg:'#eef0ff',fg:'#3E47DD'},
+        {label:'Closed — Status ∈ {Auditor Selection, Audit Order, CarAudit Preparation, Audit Result} + CarAudit Status OBSAHUJE "reject"',color:'#94a3b8',bg:'#f1f5f9',fg:'#475569'},
       ]},
-      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po ISO týdnech.'},
+      {title:'Poznámky',filters:[
+        {label:'Awaiting Selection bez APPROVED',value:'nezahrnuje se (není In Progress ani Closed)'},
+        {label:'"reject" check',value:'case-insensitive v poli CarAudit Status'},
+        {label:'ISO týden',value:'pondělí = první den týdne'},
+      ]},
     ],
   },
   'caraudit_reason': {
     title: 'CarAudit — Closed: Reason breakdown',
     icon: '🔴',
     sections: [
-      {title:'Co graf zobrazuje',text:'Týdenní rozpad důvodů zamítnutí v CarAudit pipeline (po 1st Call fázi). Pouze Closed záznamy.'},
+      {title:'Co graf zobrazuje',text:'Týdenní rozpad důvodů zamítnutí v CarAudit pipeline (po 1st Call fázi). Pouze Closed záznamy — tj. Status ∈ {Auditor Selection, Audit Order, CarAudit Preparation, Audit Result} + CarAudit Status obsahuje "reject".'},
       {title:'Zdroj',text:'CA Reason Code skupiny: Car not available, Seller fault, Car condition, Client, Auto reject, Other. Dle CA New CarAudit Date.'},
     ],
   },
@@ -1724,17 +1744,17 @@ const CHART_INFO = {
     title: 'CA done — Recommended / Not recommended',
     icon: '✅',
     sections: [
-      {title:'Co graf zobrazuje',text:'Týdenní počty dokončených CarAuditů rozdělených na Recommended (doporučeno ke koupi) a Not recommended (nedoporučeno).'},
-      {title:'Kategorie',tags:[
-        {label:'Recommended — CA Reason Code = „Approved"',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
-        {label:'Not recommended — CA Reason Code = „Not recommended"',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
-      ]},
+      {title:'Co graf zobrazuje',text:'Týdenní počty dokončených CarAuditů (pouze Carvago zákazníci) rozdělených na Recommended a Not recommended dle výsledku auditu.'},
       {title:'Filtry',filters:[
         {label:'Status',value:'pouze CarAudit Done'},
-        {label:'Zákazník',value:'pouze Carvago (ne Instamotion)'},
-        {label:'Ostatní',value:'záznamy s jiným CA Reason Code se nezahrnují'},
+        {label:'Zákazník',value:'pouze Carvago — Order: Instamotion Customer = False'},
+        {label:'Ostatní reason codes',value:'záznamy s jiným CA Reason Code se nezahrnují'},
       ]},
-      {title:'Časová osa',text:'Dle CA CarAudit Done Date, seskupeno po ISO týdnech.'},
+      {title:'Kategorie',tags:[
+        {label:'Recommended — CA Reason Code = "Approved" (doporučeno ke koupi)',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'Not recommended — CA Reason Code = "Not recommended" (auditor nedoporučil)',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+      ]},
+      {title:'Časová osa',text:'Dle CA CarAudit Done Date (datum dokončení auditu, ne CA New Date), seskupeno po ISO týdnech.'},
     ],
   },
   'acceptance_rate': {
@@ -1749,7 +1769,15 @@ const CHART_INFO = {
     title: 'CarAudit — Cost structure (weekly)',
     icon: '💶',
     sections: [
-      {title:'Co graf zobrazuje',text:'Týdenní procentuální rozložení CarAuditů do cenových kategorií podle CarAudit Amount. 100% stacked bar chart.'},
+      {title:'Co graf zobrazuje',text:'Týdenní procentuální rozložení CarAuditů do cenových kategorií podle CarAudit Amount (EUR). 100% stacked bar chart — ukazuje strukturu nákladů v čase.'},
+      {title:'Cenové kategorie (buckety)',tags:[
+        {label:'0 EUR',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'1–50 EUR',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'51–100 EUR',color:'#f59e0b',bg:'#fffbeb',fg:'#92400e'},
+        {label:'101–150 EUR',color:'#f97316',bg:'#fff7ed',fg:'#9a3412'},
+        {label:'151–200 EUR',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'>200 EUR',color:'#7c3aed',bg:'#f5f3ff',fg:'#4c1d95'},
+      ]},
       {title:'Časová osa',text:'Dle Done / Closed date, seskupeno po ISO týdnech.'},
     ],
   },
@@ -1757,48 +1785,100 @@ const CHART_INFO = {
     title: 'CarAudit — Cost structure DE (weekly)',
     icon: '💶',
     sections: [
-      {title:'Co graf zobrazuje',text:'Stejný graf jako Cost structure, ale filtrováno pouze na CA Vendor Country = DE (Německo).'},
+      {title:'Co graf zobrazuje',text:'Stejný graf jako Cost structure, ale filtrováno pouze na CA Vendor Country = DE (Německo). Ukazuje cenovou strukturu CarAuditů pro německé dodavatele.'},
+      {title:'Cenové kategorie (buckety)',tags:[
+        {label:'0 EUR',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'1–50 EUR',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'51–100 EUR',color:'#f59e0b',bg:'#fffbeb',fg:'#92400e'},
+        {label:'101–150 EUR',color:'#f97316',bg:'#fff7ed',fg:'#9a3412'},
+        {label:'151–200 EUR',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'>200 EUR',color:'#7c3aed',bg:'#f5f3ff',fg:'#4c1d95'},
+      ]},
     ],
   },
   'vin_check_monthly': {
     title: 'CA New → VIN Check (NET hod.)',
     icon: '⏱️',
     sections: [
-      {title:'Co graf zobrazuje',text:'Procentuální rozložení doby odezvy od New CarAudit po VIN Check v NET pracovních hodinách. Pracovní hodiny: Po–Pá 08:00–17:00, So 08:00–13:00.'},
-      {title:'Časová osa',text:'Seskupeno po měsících dle CA New CarAudit Date.'},
+      {title:'Co graf zobrazuje',text:'Měsíční procentuální rozložení NET pracovních hodin od zahájení CarAuditu (CA New) do dokončení 1st Call fáze. Zahrnuje 3 typy ukončení — včetně REJECT případů, kde VIN Check nikdy nenastal.'},
+      {title:'Pracovní hodiny',filters:[
+        {label:'Po–Pá',value:'08:00–17:00 (9 hodin/den)'},
+        {label:'Sobota',value:'08:00–13:00 (5 hodin/den)'},
+        {label:'Neděle',value:'zavřeno (0 hodin)'},
+      ]},
+      {title:'3 kombinace zahrnutých záznamů',tags:[
+        {label:'Kombinace 1 — REJECT u Data Validation: DV vyplněno, Car Check prázdné, VIN prázdné, Status obsahuje REJECT → měříme New→DV',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Kombinace 2 — REJECT u Car Check: DV vyplněno, Car Check vyplněno, VIN prázdné, Status obsahuje REJECT → měříme New→Car Check',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
+        {label:'Kombinace 3 — VIN Check dokončen: DV vyplněno, Car Check vyplněno, VIN vyplněno (libovolný status) → měříme New→VIN Check',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+      ]},
+      {title:'Buckety (NET pracovní hodiny)',tags:[
+        {label:'≤ 2h',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'≤ 4h',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'≤ 6h',color:'#f59e0b',bg:'#fffbeb',fg:'#92400e'},
+        {label:'≤ 12h',color:'#f97316',bg:'#fff7ed',fg:'#9a3412'},
+        {label:'≤ 24h',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'≤ 48h',color:'#dc2626',bg:'#fef2f2',fg:'#7f1d1d'},
+        {label:'> 48h',color:'#7c3aed',bg:'#f5f3ff',fg:'#4c1d95'},
+      ]},
+      {title:'Časová osa',text:'Záznamy se přiřazují do měsíce dle CA New CarAudit Date (datum zahájení), ne dle end date.'},
     ],
   },
   'vin_check_weekly': {
     title: 'CA New → VIN Check (NET hrs, weekly)',
     icon: '⏱️',
     sections: [
-      {title:'Co graf zobrazuje',text:'Stejný graf jako měsíční verze, ale seskupeno po ISO týdnech.'},
+      {title:'Co graf zobrazuje',text:'Stejný výpočet jako měsíční VIN Check graf, ale seskupeno po ISO týdnech (dle CA New CarAudit Date). Zahrnuje všechny 3 kombinace — VIN done + oba REJECT typy.'},
+      {title:'3 kombinace zahrnutých záznamů',tags:[
+        {label:'Kombinace 1 — REJECT u Data Validation → měříme New→DV',color:'#f97316',bg:'#fff7ed',fg:'#c2410c'},
+        {label:'Kombinace 2 — REJECT u Car Check → měříme New→Car Check',color:'#eab308',bg:'#fefce8',fg:'#854d0e'},
+        {label:'Kombinace 3 — VIN Check dokončen → měříme New→VIN',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+      ]},
+      {title:'Buckety',tags:[
+        {label:'≤ 2h',color:'#22c55e',bg:'#f0fdf4',fg:'#15803d'},
+        {label:'≤ 4h',color:'#84cc16',bg:'#f7fee7',fg:'#3f6212'},
+        {label:'≤ 6h',color:'#f59e0b',bg:'#fffbeb',fg:'#92400e'},
+        {label:'≤ 12h',color:'#f97316',bg:'#fff7ed',fg:'#9a3412'},
+        {label:'≤ 24h',color:'#ef4444',bg:'#fef2f2',fg:'#991b1b'},
+        {label:'≤ 48h',color:'#dc2626',bg:'#fef2f2',fg:'#7f1d1d'},
+        {label:'> 48h',color:'#7c3aed',bg:'#f5f3ff',fg:'#4c1d95'},
+      ]},
+      {title:'Pracovní hodiny',filters:[
+        {label:'Po–Pá',value:'08:00–17:00'},
+        {label:'Sobota',value:'08:00–13:00'},
+        {label:'Neděle',value:'zavřeno'},
+      ]},
     ],
   },
   'auditor_monthly': {
     title: 'CA Auditor Selection → Done/Closed (NET hrs, monthly)',
     icon: '⏱️',
     sections: [
-      {title:'Co graf zobrazuje',text:'Rozložení doby od Auditor Selection po Done/Closed v NET pracovních hodinách. Seskupeno po měsících dle data uzavření.'},
+      {title:'Co graf zobrazuje',text:'Rozložení NET pracovních hodin od Auditor Selection po Done/Closed v buckety. Seskupeno po měsících dle data uzavření.'},
     ],
   },
   'auditor_weekly': {
     title: 'CA Auditor Selection → Done/Closed (NET hrs, weekly)',
     icon: '⏱️',
     sections: [
-      {title:'Co graf zobrazuje',text:'Stejný graf jako měsíční verze, seskupeno po ISO týdnech.'},
+      {title:'Co graf zobrazuje',text:'Stejný výpočet jako měsíční Auditor graf, seskupeno po ISO týdnech.'},
     ],
   },
   'avg_price': {
     title: 'CarAudit — Average price EUR / month',
     icon: '💰',
     sections: [
-      {title:'Co graf zobrazuje',text:'Měsíční průměrná hodnota CarAudit Amount v EUR. Zahrnuje pouze CarAudity s vyplněnou hodnotou (včetně 0). Prázdné hodnoty se nezapočítávají.'},
-      {title:'Filtry',filters:[
-        {label:'Zahrnuté',value:'CarAudit Amount ≥ 0 (numerické)'},
-        {label:'Vyloučené',value:'prázdné nebo "-" hodnoty'},
+      {title:'Co graf zobrazuje',text:'Měsíční průměrná hodnota CarAudit Amount v EUR. Počítá se jako aritmetický průměr pole CarAudit: CarAudit Amount za daný měsíc. Seskupeno dle CA New CarAudit Date.'},
+      {title:'Pravidla zahrnutí',filters:[
+        {label:'Zahrnuto',value:'CarAudit Amount = číselná hodnota VČETNĚ nuly (0 je platná hodnota!)'},
+        {label:'Vyloučeno',value:'prázdné hodnoty (NaN) nebo "-"'},
+        {label:'⚠️ Pozor',value:'Filtr > 0 je CHYBA — vylučuje nuly a dává průměr ~113 EUR místo správných ~79 EUR'},
       ]},
-      {title:'Časová osa',text:'Dle CA New CarAudit Date, seskupeno po měsících.'},
+      {title:'Referenční hodnoty',filters:[
+        {label:'2024',value:'průměr ~163–182 EUR'},
+        {label:'2025 Q1',value:'průměr ~114–136 EUR'},
+        {label:'2025 Q2+',value:'průměr ~79–107 EUR'},
+        {label:'2026',value:'průměr ~79–86 EUR'},
+      ]},
     ],
   },
   'cost_per_car': {
@@ -1815,11 +1895,12 @@ const CHART_INFO = {
     sections: [
       {title:'Co graf zobrazuje',text:'Měsíční marže CarAuditů = Revenue − Cost. Zelené sloupce = kladná marže, červené = záporná. Měsíce bez revenue dat se nezobrazují.'},
       {title:'Zdroje dat',filters:[
-        {label:'Revenue',value:'Google Sheets FA_CA_2025 → REVE_CA_FROM_2024 → řádek "Total"'},
-        {label:'Cost',value:'avg_amount × count_with_amount (z Airtable CarAuditData)'},
-        {label:'Margin',value:'Revenue − Cost'},
+        {label:'Revenue',value:'Google Sheets FA_CA_2025 → list REVE_CA_FROM_2024 → řádek "Total" → hodnota per sloupec (měsíc)'},
+        {label:'Cost',value:'avg_amount × count_with_amount z Airtable CarAuditData'},
+        {label:'Margin',value:'Revenue − Cost (zaokrouhleno na celé číslo)'},
       ]},
-      {title:'Časová osa',text:'Seskupeno po měsících, formát M/YY.'},
+      {title:'Výpočet',text:'total_cost = round(avg_amount × count_with_amount); margin = round(revenue − total_cost). Záznamy kde revenue = null se nezobrazují.'},
+      {title:'Časová osa',text:'Seskupeno po měsících, formát M/YY. Range buttons: 6M, 12M, 24M, vše.'},
     ],
   },
   'dr_active': {
