@@ -1611,6 +1611,14 @@ const CHART_INFO = {
         {label:'4. Contract Accepted',value:'Pouze Accepted Date → měsíc dle Accepted Date'},
       ]},
       {title:'Podmínka zahrnutí',text:'Objednávka musí mít minimálně vyplněné Contract Accepted Date.'},
+      {title:'📈 Predikce konce měsíce (EOM)',text:'Pro aktuální měsíc graf zobrazuje prediktivní rozšíření sloupce (průhledný modrý pruhovaný bar). Predikce je počítána pouze z Contract Paid (ip) — cíl je odhadnout finální počet zaplacených objednávek.'},
+      {title:'Predikční křivka (referenční body)',filters:[
+        {label:'Den 7',value:'≈ 19,5 % Contract Paid za celý měsíc'},
+        {label:'Den 14',value:'≈ 43,5 % Contract Paid za celý měsíc'},
+        {label:'Den 20',value:'≈ 65,2 % Contract Paid za celý měsíc'},
+        {label:'Den 28',value:'≈ 91,8 % Contract Paid za celý měsíc'},
+      ]},
+      {title:'Vzorec predikce',text:'predMean = aktuální_ip ÷ PRED_CURVE[dnešní_den]. Na rozdíl od Carvago grafu vstupuje do predikce pouze Contract Paid (ip), nikoli Contract Accepted. Rozsah: predLow = mean × 0,82 / predHigh = mean × 1,22.'},
     ],
   },
   'carvago_lost': {
@@ -3343,6 +3351,17 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
   const instaData = data.filter(d => instaMonths.has(d.m));
   const instaLost = ild.filter(d => instaMonths.has(d.m));
 
+  // === END-OF-MONTH PREDICTION for current Instamotion month (Contract Paid only) ===
+  const iActual = isCurrentMonth ? (last?.ip||0) : 0;  // pouze Contract Paid
+  const iPredMean  = (isCurrentMonth && predPct > 0) ? Math.round(iActual / predPct) : 0;
+  const iPredLow   = iPredMean ? Math.round(iPredMean * 0.82) : 0;
+  const iPredHigh  = iPredMean ? Math.round(iPredMean * 1.22) : 0;
+  const iPredRemain = iPredMean ? Math.max(0, iPredMean - iActual) : 0;
+  const instaDataWithPred = (isCurrentMonth && iPredRemain > 0 && instaMonths.has(curMonthLabel))
+    ? instaData.map((d, i) => i === instaData.length - 1 ? {...d, predRemain: iPredRemain} : d)
+    : instaData;
+  const iMaxPred = Math.max(iMax, iPredMean ? (last?.ip||0)+(last?.ia||0)+(last?.il||0)+iPredRemain : 0);
+
   // CarAudit data
   const CA = useMemo(() => {
     if (!caRawData) return [];
@@ -3420,8 +3439,9 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           predMean={predMean} predLow={predLow} predHigh={predHigh}/>
 
         {/* Instamotion Orders Chart */}
-        {hasInsta && <Chart data={instaData} title={`Instamotion — Orders by Month`} subtitle={`Updated ${updated}`}
-          paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMax * 1.1)} infoKey="instamotion_orders"/>}
+        {hasInsta && <Chart data={instaDataWithPred} title={`Instamotion — Orders by Month`} subtitle={`Updated ${updated}`}
+          paidKey="ip" accKey="ia" lostKey="il" maxVal={Math.ceil(iMaxPred * 1.12)} infoKey="instamotion_orders"
+          predMean={iPredMean} predLow={iPredLow} predHigh={iPredHigh}/>}
 
         {/* Carvago Lost Reasons Chart */}
         <LostChart data={cld} title={`Carvago — Lost Orders by Reason`} subtitle={`Updated ${updated}`} prefix="cl" infoKey="carvago_lost"/>
