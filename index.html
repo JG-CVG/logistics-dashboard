@@ -2960,6 +2960,111 @@ const CarAuditWeeklyChart = ({data, title, subtitle, infoKey}) => {
 
 
 
+// === CA CLOSED REASON DONUTS (aktuální měsíc / rok / předchozí rok) ===
+const CAPhase2DonutsChart = ({data}) => {
+  if (!data || data.length === 0) return null;
+  const today = new Date();
+  const curYear = today.getFullYear();
+  const prevYear = curYear - 1;
+  const curMonth = today.getMonth();
+  const MONTH_NAMES = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+
+  // Determine which month an ISO week belongs to via its Thursday
+  const thursdayOfWeek = (year, weekNum) => {
+    const jan4 = new Date(year, 0, 4);
+    const startW1 = new Date(jan4);
+    startW1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+    const mon = new Date(startW1);
+    mon.setDate(mon.getDate() + (weekNum - 1) * 7);
+    const thu = new Date(mon);
+    thu.setDate(mon.getDate() + 3);
+    return thu;
+  };
+
+  const KEYS = window.CA_CLOSED_KEYS;
+  const R = Math.PI / 180;
+
+  const aggregate = (rows) => {
+    const sum = {total:0};
+    KEYS.forEach(k => { sum[k.key] = 0; });
+    rows.forEach(r => {
+      sum.total += r.total || 0;
+      KEYS.forEach(k => { sum[k.key] += r[k.key] || 0; });
+    });
+    return KEYS
+      .map(k => ({name:k.label, key:k.key, value:sum[k.key], color:k.color}))
+      .filter(d => d.value > 0)
+      .sort((a,b) => b.value - a.value)
+      .map(d => ({...d, pct: sum.total > 0 ? +(d.value / sum.total * 100).toFixed(1) : 0}));
+  };
+
+  const cmRows = data.filter(r => r.year === curYear && thursdayOfWeek(r.year, r.week_num).getMonth() === curMonth);
+  const cyRows = data.filter(r => r.year === curYear);
+  const pyRows = data.filter(r => r.year === prevYear);
+
+  const cmTotal = cmRows.reduce((s,r) => s+(r.total||0), 0);
+  const cyTotal = cyRows.reduce((s,r) => s+(r.total||0), 0);
+  const pyTotal = pyRows.reduce((s,r) => s+(r.total||0), 0);
+
+  const labelRenderer = ({cx,cy,midAngle,innerRadius,outerRadius,pct}) => {
+    if (pct < 7) return null;
+    const r2 = innerRadius + (outerRadius - innerRadius) * 0.58;
+    return <text x={cx+r2*Math.cos(-midAngle*R)} y={cy+r2*Math.sin(-midAngle*R)}
+      fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700}>{pct}%</text>;
+  };
+
+  const DonutPanel = ({title, subtitle, chartData, total}) => (
+    <div style={{flex:1, minWidth:0}}>
+      <div style={{marginBottom:6}}>
+        <div style={{fontSize:13,fontWeight:700,color:'#1F2B59'}}>{title}</div>
+        <div style={{fontSize:11,color:'#7B87A8'}}>{subtitle} · {total} closed</div>
+      </div>
+      <ResponsiveContainer width="100%" height={175}>
+        <PieChart>
+          <Pie data={chartData} cx="50%" cy="50%" innerRadius={48} outerRadius={80}
+               dataKey="pct" labelLine={false} label={labelRenderer}>
+            {chartData.map(d => <Cell key={d.key} fill={d.color}/>)}
+          </Pie>
+          <Tooltip formatter={(v,n,p) => [`${p.payload.value} (${v}%)`, p.payload.name]}/>
+        </PieChart>
+      </ResponsiveContainer>
+      <div>
+        {chartData.map(d => (
+          <div key={d.key} style={{display:'flex',justifyContent:'space-between',alignItems:'center',
+            padding:'3px 0',borderBottom:'1px solid #f1f5f9'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <div style={{width:9,height:9,borderRadius:2,background:d.color,flexShrink:0}}/>
+              <span style={{fontSize:11,color:'#374151'}}>{d.name}</span>
+            </div>
+            <span style={{fontSize:11,fontWeight:700,color:'#1F2B59'}}>
+              {d.value} <span style={{fontWeight:400,color:'#9CA3AF'}}>({d.pct}%)</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,
+                 boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
+      <div style={{marginBottom:16}}>
+        <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>
+          CarAudit Closed — Důvody uzavření (Phase 2)
+        </h2>
+        <span style={{fontSize:11,color:'#7B87A8'}}>Pouze Phase 2 Closed · bez 1st Call · dle CA Reason Code · seřazeno dle četnosti</span>
+      </div>
+      <div style={{display:'flex',gap:20}}>
+        <DonutPanel title={`${MONTH_NAMES[curMonth]} ${curYear}`} subtitle="Aktuální měsíc" chartData={aggregate(cmRows)} total={cmTotal}/>
+        <div style={{width:1,background:'#f1f5f9',alignSelf:'stretch'}}/>
+        <DonutPanel title={`Rok ${curYear}`} subtitle="Aktuální rok" chartData={aggregate(cyRows)} total={cyTotal}/>
+        <div style={{width:1,background:'#f1f5f9',alignSelf:'stretch'}}/>
+        <DonutPanel title={`Rok ${prevYear}`} subtitle="Předchozí rok" chartData={aggregate(pyRows)} total={pyTotal}/>
+      </div>
+    </div>
+  );
+};
+
 // === CA CLOSED REASON WEEKLY CHART ===
 const CAClosedReasonChart = ({data, title, subtitle, infoKey}) => {
   const [wRange, setWRange] = useState(26);
@@ -3514,6 +3619,9 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
             infoKey="caraudit_reason"
           />
         </div>}
+        {caClosedReasonData && caClosedReasonData.length > 0 &&
+          <CAPhase2DonutsChart data={caClosedReasonData}/>
+        }
                 {/* CarAudit KPI Cards */}
         {caData.length > 0 && <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
           <Card title={`CarAudit Total · ${lastCA?.m}`} value={lastCA?.total||0}
