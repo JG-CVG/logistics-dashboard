@@ -1546,6 +1546,11 @@ function getToken() {
 
 // === COLORS ===
 const C = {paid:'#3E47DD', acc:'#f59e0b', lost:'#94a3b8'};
+
+// === PREDICTION CURVE (intra-month cumulative % by day) ===
+// Z analýzy historických dat (24 měsíců): pomalý začátek, silný konec měsíce
+// Referenční body: Den7=19.5%, Den14=43.5%, Den20=65.2%, Den28=91.8%
+const PRED_CURVE = [0,.028,.056,.084,.111,.139,.167,.195,.229,.263,.298,.332,.366,.401,.435,.471,.507,.543,.579,.615,.652,.685,.718,.752,.785,.818,.851,.885,.918,.945,.973,1.0];
 const LC = ['#ef4444','#f97316','#eab308','#84cc16','#22c55e','#14b8a6','#06b6d4','#6366f1','#a855f7','#ec4899'];
 const LOST_KEYS = ['car_was_sold','car_not_available','personal_reasons','deal_cancelled','car_issues','other'];
 const LOST_LABELS = {'car_was_sold':'Car was sold','car_not_available':'Car not available','personal_reasons':'Customer side','deal_cancelled':'Seller side','car_issues':'Car condition','other':'Other'};
@@ -2043,7 +2048,7 @@ const StackLabel = ({x,y,width,value}) => {
 };
 
 // === CHART COMPONENT ===
-const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey}) => {
+const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey, predMean, predLow, predHigh}) => {
   const reversed = [...data].reverse();  // newest left, oldest right
   // Totals for the entire displayed period
   const periodTotals = {
@@ -2051,12 +2056,39 @@ const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey
     [accKey]:  data.reduce((s,d)=>s+(d[accKey]||0),0),
     [lostKey]: data.reduce((s,d)=>s+(d[lostKey]||0),0),
   };
+  const hasPred = predMean > 0;
+
+  // Custom shape for prediction bar (hatched / dashed overlay)
+  const PredBar = ({x, y, width, height}) => {
+    if (!height || height <= 0) return null;
+    return (
+      <g>
+        <rect x={x} y={y} width={width} height={height}
+          fill="rgba(62,71,221,0.10)" stroke="#3E47DD"
+          strokeWidth={1.5} strokeDasharray="5,3" rx={3}/>
+        {/* diagonal stripes */}
+        {[...Array(Math.ceil((width + height) / 7))].map((_,i) => {
+          const offset = i * 7;
+          return <line key={i} x1={x + offset} y1={y} x2={x + offset - height} y2={y + height}
+            stroke="#3E47DD" strokeWidth={1} opacity={0.18}/>;
+        })}
+      </g>
+    );
+  };
+
   return (
   <div className="cv-card" style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:16}}>
+    <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:hasPred?4:16}}>
       <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>{title}{infoKey && <InfoButton infoKey={infoKey}/>}</h2>
       {subtitle && <span style={{fontSize:11,color:'#7B87A8'}}>{subtitle}</span>}
     </div>
+    {hasPred && (
+      <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12,padding:'6px 10px',background:'rgba(62,71,221,0.06)',borderRadius:6,border:'1px dashed rgba(62,71,221,0.3)'}}>
+        <span style={{fontSize:11,color:'#3E47DD',fontWeight:600}}>📈 Predikce EOM (den {new Date().getDate()}):</span>
+        <span style={{fontSize:12,fontWeight:700,color:'#3E47DD'}}>~{predMean}</span>
+        <span style={{fontSize:11,color:'#6B7280'}}>rozsah {predLow}–{predHigh} objednávek</span>
+      </div>
+    )}
     <ResponsiveContainer width="100%" height={360}>
       <BarChart data={reversed} margin={{left:0,right:10,top:20,bottom:5}}>
         <CartesianGrid strokeDasharray="3 3" vertical={false}/>
@@ -2078,20 +2110,37 @@ const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey
             return <text x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#1F2B59" fontWeight={700}>{v}</text>;
           }}
         />
-        <Bar dataKey={lostKey} name="Storno (Lost)" stackId="a" fill={C.lost} radius={[4,4,0,0]}
+        <Bar dataKey={lostKey} name="Storno (Lost)" stackId="a" fill={C.lost}
+          radius={hasPred ? [0,0,0,0] : [4,4,0,0]}
           label={({x,y,width,height,index}) => {
             const d = reversed[index];
             if(!d) return null;
             const vLost = d[lostKey]||0;
+            const hasPredBar = hasPred && index === 0 && d.predRemain > 0;
             const total = (d[paidKey]||0)+(d[accKey]||0)+vLost;
             const parts = [];
             if(vLost && height>=14)
               parts.push(<text key="v" x={x+width/2} y={y+height/2+4} textAnchor="middle" fontSize={9} fill="#fff" fontWeight={600}>{vLost}</text>);
-            if(total)
+            // Show total only if no prediction bar (prediction bar shows its own label)
+            if(total && !hasPredBar)
               parts.push(<text key="t" x={x+width/2} y={y-5} textAnchor="middle" fontSize={10} fill="#374151" fontWeight={700}>{total}</text>);
             return parts.length ? <g>{parts}</g> : null;
           }}
         />
+        {hasPred && (
+          <Bar dataKey="predRemain" name="Predikce (zbytek)" stackId="a" shape={<PredBar/>}
+            radius={[4,4,0,0]}
+            label={({x,y,width,height,index}) => {
+              if(index !== 0 || !height || height <= 0) return null;
+              return (
+                <g>
+                  <text x={x+width/2} y={y-18} textAnchor="middle" fontSize={11} fill="#3E47DD" fontWeight={700}>{'~'+predMean}</text>
+                  <text x={x+width/2} y={y-6} textAnchor="middle" fontSize={9} fill="#6B7280">{predLow+'–'+predHigh}</text>
+                </g>
+              );
+            }}
+          />
+        )}
       </BarChart>
     </ResponsiveContainer>
   </div>
@@ -3263,6 +3312,22 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
   const cMax = Math.max(...data.map(d => d.cp + d.ca + d.cl));
   const iMax = hasInsta ? Math.max(...data.map(d => d.ip + d.ia + d.il)) : 0;
 
+  // === END-OF-MONTH PREDICTION for current Carvago month ===
+  const MONTH_ABBR2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const curMonthLabel = `${MONTH_ABBR2[today.getMonth()]} ${String(today.getFullYear()).slice(2)}`;
+  const isCurrentMonth = last?.m === curMonthLabel;
+  const currentDay = today.getDate();
+  const predPct = isCurrentMonth ? (PRED_CURVE[Math.min(currentDay, 31)] || 0.01) : 0;
+  const cActual = isCurrentMonth ? (last?.cp||0) + (last?.ca||0) : 0;
+  const predMean  = (isCurrentMonth && predPct > 0) ? Math.round(cActual / predPct) : 0;
+  const predLow   = predMean ? Math.round(predMean * 0.82) : 0;
+  const predHigh  = predMean ? Math.round(predMean * 1.22) : 0;
+  const predRemain = predMean ? Math.max(0, predMean - cActual) : 0;
+  const dataWithPred = (isCurrentMonth && predRemain > 0)
+    ? data.map((d, i) => i === data.length - 1 ? {...d, predRemain} : d)
+    : data;
+  const cMaxPred = Math.max(cMax, predMean ? (last?.cp||0)+(last?.ca||0)+(last?.cl||0)+predRemain : 0);
+
   const buttons = [6, 12, 24, D.length];
   const btnLabels = ['6M', '12M', '24M', `${D.length}M`];
 
@@ -3342,8 +3407,9 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
         </div>
 
         {/* Carvago Orders Chart */}
-        <Chart data={data} title={`Carvago — Orders by Month`} subtitle={`Updated ${updated}`}
-          paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMax * 1.1)} infoKey="carvago_orders"/>
+        <Chart data={dataWithPred} title={`Carvago — Orders by Month`} subtitle={`Updated ${updated}`}
+          paidKey="cp" accKey="ca" lostKey="cl" maxVal={Math.ceil(cMaxPred * 1.12)} infoKey="carvago_orders"
+          predMean={predMean} predLow={predLow} predHigh={predHigh}/>
 
         {/* Instamotion Orders Chart */}
         {hasInsta && <Chart data={instaData} title={`Instamotion — Orders by Month`} subtitle={`Updated ${updated}`}
