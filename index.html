@@ -2148,6 +2148,12 @@ const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey
   };
   const hasPred = predMean > 0;
 
+  // Index of bar with highest Contract Paid (excluding current running month)
+  const maxPaidIdx = reversed.reduce((best, d, i) => {
+    if (hasPred && i === 0) return best; // skip current partial month
+    return (d[paidKey]||0) > (reversed[best]?.[paidKey]||0) ? i : best;
+  }, hasPred ? 1 : 0);
+
   // Custom shape for prediction bar (hatched / dashed overlay)
   const PredBar = ({x, y, width, height}) => {
     if (!height || height <= 0) return null;
@@ -2214,6 +2220,9 @@ const Chart = ({data, title, subtitle, paidKey, accKey, lostKey, maxVal, infoKey
             // Show total only if no prediction bar (prediction bar shows its own label)
             if(total && !hasPredBar)
               parts.push(<text key="t" x={x+width/2} y={y-5} textAnchor="middle" fontSize={10} fill="#374151" fontWeight={700}>{total}</text>);
+            // Trophy above the all-time max Contract Paid bar
+            if(index === maxPaidIdx)
+              parts.push(<text key="trophy" x={x+width/2} y={y-(total&&!hasPredBar?20:8)} textAnchor="middle" fontSize={16}>🏆</text>);
             return parts.length ? <g>{parts}</g> : null;
           }}
         />
