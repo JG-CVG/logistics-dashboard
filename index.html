@@ -1584,6 +1584,14 @@ const CHART_INFO = {
         {label:'4. Contract Accepted',value:'Pouze Contract Accepted Date (bez ostatních) → měsíc dle Accepted Date'},
       ]},
       {title:'Podmínka zahrnutí',text:'Objednávka musí mít minimálně vyplněné Contract Accepted Date. Bez tohoto pole se objednávka do grafu nezahrnuje.'},
+      {title:'📈 Predikce konce měsíce (EOM)',text:'Pro aktuální měsíc graf zobrazuje prediktivní rozšíření sloupce (průhledný modrý pruhovaný bar). Predikce vychází z analýzy historických dat 24 měsíců — jak se objednávky rozloží uvnitř měsíce: pomalý začátek, silný konec.'},
+      {title:'Predikční křivka (referenční body)',filters:[
+        {label:'Den 7',value:'≈ 19,5 % celkového počtu za měsíc'},
+        {label:'Den 14',value:'≈ 43,5 % celkového počtu za měsíc'},
+        {label:'Den 20',value:'≈ 65,2 % celkového počtu za měsíc'},
+        {label:'Den 28',value:'≈ 91,8 % celkového počtu za měsíc'},
+      ]},
+      {title:'Vzorec predikce',text:'predMean = aktuální_cp_ca ÷ PRED_CURVE[dnešní_den]. Rozsah: ±18–22 % od středu (predLow = mean × 0,82 / predHigh = mean × 1,22). Predikce se automaticky aktualizuje každý den — čím víc dní v měsíci uplynulo, tím přesnější odhad.'},
     ],
   },
   'instamotion_orders': {
