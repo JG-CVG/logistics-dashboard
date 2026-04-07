@@ -3629,10 +3629,8 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
             infoKey="caraudit_reason"
           />
         </div>}
-        {caClosedReasonData && caClosedReasonData.length > 0 &&
-          {caReasonRawData && caReasonRawData.length > 0 &&
-            <CAPhase2DonutsChart data={caReasonRawData}/>
-          }
+        {caReasonRawData && caReasonRawData.length > 0 &&
+          <CAPhase2DonutsChart data={caReasonRawData}/>
         }
                 {/* CarAudit KPI Cards */}
         {caData.length > 0 && <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
