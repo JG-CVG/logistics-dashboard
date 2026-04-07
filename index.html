@@ -1564,6 +1564,8 @@ const CA_REASON_LABELS = {'reason_car_na':'Car not available','reason_seller':'S
 const CA_REASON_COLORS = ['#3E47DD','#ef4444','#f97316','#f59e0b','#94a3b8','#d1d5db'];
 const CA_TABLE_ID = 'tblj2a4OS6b7bD9mq';
 const CA_API_URL = `https://api.airtable.com/v0/${BASE_ID}/${CA_TABLE_ID}?sort%5B0%5D%5Bfield%5D=Month&sort%5B0%5D%5Bdirection%5D=asc&pageSize=100`;
+const CA_REASON_RAW_TABLE_ID = 'tblux8gxrbFpuNfAe';
+const CA_REASON_RAW_API_URL = `https://api.airtable.com/v0/${BASE_ID}/${CA_REASON_RAW_TABLE_ID}?pageSize=100`;
 
 // === CHART INFO DATA ===
 const CHART_INFO = {
@@ -2961,105 +2963,113 @@ const CarAuditWeeklyChart = ({data, title, subtitle, infoKey}) => {
 
 
 // === CA CLOSED REASON DONUTS (aktuální měsíc / rok / předchozí rok) ===
+// Palette for up to 15 distinct reason codes
+const RAW_REASON_PALETTE = [
+  '#3E47DD','#ef4444','#f97316','#eab308','#22c55e',
+  '#14b8a6','#06b6d4','#a855f7','#ec4899','#6366f1',
+  '#84cc16','#f59e0b','#0891b2','#db2777','#16a34a'
+];
+
 const CAPhase2DonutsChart = ({data}) => {
   if (!data || data.length === 0) return null;
   const today = new Date();
   const curYear = today.getFullYear();
   const prevYear = curYear - 1;
-  const curMonth = today.getMonth();
+  const curMonth = today.getMonth() + 1; // 1-based
   const MONTH_NAMES = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-
-  // Determine which month an ISO week belongs to via its Thursday
-  const thursdayOfWeek = (year, weekNum) => {
-    const jan4 = new Date(year, 0, 4);
-    const startW1 = new Date(jan4);
-    startW1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
-    const mon = new Date(startW1);
-    mon.setDate(mon.getDate() + (weekNum - 1) * 7);
-    const thu = new Date(mon);
-    thu.setDate(mon.getDate() + 3);
-    return thu;
-  };
-
-  const KEYS = window.CA_CLOSED_KEYS;
   const R = Math.PI / 180;
+  const TOP_N = 10;
 
+  // Aggregate reasons from monthly rows, sum counts, return top N
   const aggregate = (rows) => {
-    const sum = {total:0};
-    KEYS.forEach(k => { sum[k.key] = 0; });
-    rows.forEach(r => {
-      sum.total += r.total || 0;
-      KEYS.forEach(k => { sum[k.key] += r[k.key] || 0; });
+    const totals = {};
+    rows.forEach(row => {
+      (row.reasons || []).forEach(({r, c}) => {
+        totals[r] = (totals[r] || 0) + c;
+      });
     });
-    return KEYS
-      .map(k => ({name:k.label, key:k.key, value:sum[k.key], color:k.color}))
-      .filter(d => d.value > 0)
-      .sort((a,b) => b.value - a.value)
-      .map(d => ({...d, pct: sum.total > 0 ? +(d.value / sum.total * 100).toFixed(1) : 0}));
+    const total = Object.values(totals).reduce((s,v) => s+v, 0);
+    return Object.entries(totals)
+      .sort((a,b) => b[1] - a[1])
+      .slice(0, TOP_N)
+      .map(([name, value], i) => ({
+        name,
+        value,
+        color: RAW_REASON_PALETTE[i % RAW_REASON_PALETTE.length],
+        pct: total > 0 ? +(value / total * 100).toFixed(1) : 0
+      }));
   };
 
-  const cmRows = data.filter(r => r.year === curYear && thursdayOfWeek(r.year, r.week_num).getMonth() === curMonth);
+  const cmRows = data.filter(r => r.year === curYear && r.month === curMonth);
   const cyRows = data.filter(r => r.year === curYear);
   const pyRows = data.filter(r => r.year === prevYear);
 
-  const cmTotal = cmRows.reduce((s,r) => s+(r.total||0), 0);
-  const cyTotal = cyRows.reduce((s,r) => s+(r.total||0), 0);
-  const pyTotal = pyRows.reduce((s,r) => s+(r.total||0), 0);
+  const sumTotal = (rows) => rows.reduce((s,r) => s + (r.reasons||[]).reduce((a,x)=>a+x.c,0), 0);
 
   const labelRenderer = ({cx,cy,midAngle,innerRadius,outerRadius,pct}) => {
-    if (pct < 7) return null;
+    if (pct < 6) return null;
     const r2 = innerRadius + (outerRadius - innerRadius) * 0.58;
     return <text x={cx+r2*Math.cos(-midAngle*R)} y={cy+r2*Math.sin(-midAngle*R)}
-      fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={700}>{pct}%</text>;
+      fill="#fff" textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={700}>{pct}%</text>;
   };
 
-  const DonutPanel = ({title, subtitle, chartData, total}) => (
-    <div style={{flex:1, minWidth:0}}>
-      <div style={{marginBottom:6}}>
-        <div style={{fontSize:13,fontWeight:700,color:'#1F2B59'}}>{title}</div>
-        <div style={{fontSize:11,color:'#7B87A8'}}>{subtitle} · {total} closed</div>
+  const DonutPanel = ({title, subtitle, chartData, total}) => {
+    if (!chartData || chartData.length === 0) return (
+      <div style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontSize:12}}>
+        Žádná data
       </div>
-      <ResponsiveContainer width="100%" height={175}>
-        <PieChart>
-          <Pie data={chartData} cx="50%" cy="50%" innerRadius={48} outerRadius={80}
-               dataKey="pct" labelLine={false} label={labelRenderer}>
-            {chartData.map(d => <Cell key={d.key} fill={d.color}/>)}
-          </Pie>
-          <Tooltip formatter={(v,n,p) => [`${p.payload.value} (${v}%)`, p.payload.name]}/>
-        </PieChart>
-      </ResponsiveContainer>
-      <div>
-        {chartData.map(d => (
-          <div key={d.key} style={{display:'flex',justifyContent:'space-between',alignItems:'center',
-            padding:'3px 0',borderBottom:'1px solid #f1f5f9'}}>
-            <div style={{display:'flex',alignItems:'center',gap:6}}>
-              <div style={{width:9,height:9,borderRadius:2,background:d.color,flexShrink:0}}/>
-              <span style={{fontSize:11,color:'#374151'}}>{d.name}</span>
+    );
+    return (
+      <div style={{flex:1, minWidth:0}}>
+        <div style={{marginBottom:6}}>
+          <div style={{fontSize:13,fontWeight:700,color:'#1F2B59'}}>{title}</div>
+          <div style={{fontSize:11,color:'#7B87A8'}}>{subtitle} · {total.toLocaleString()} closed</div>
+        </div>
+        <ResponsiveContainer width="100%" height={180}>
+          <PieChart>
+            <Pie data={chartData} cx="50%" cy="50%" innerRadius={50} outerRadius={82}
+                 dataKey="pct" labelLine={false} label={labelRenderer} startAngle={90} endAngle={-270}>
+              {chartData.map((d,i) => <Cell key={i} fill={d.color}/>)}
+            </Pie>
+            <Tooltip formatter={(v,n,p) => [`${p.payload.value.toLocaleString()} (${v}%)`, p.payload.name]}/>
+          </PieChart>
+        </ResponsiveContainer>
+        <div style={{marginTop:4}}>
+          {chartData.map((d,i) => (
+            <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',
+              padding:'3px 0',borderBottom:'1px solid #f1f5f9',gap:8}}>
+              <div style={{display:'flex',alignItems:'flex-start',gap:5,minWidth:0}}>
+                <div style={{width:8,height:8,borderRadius:2,background:d.color,flexShrink:0,marginTop:2}}/>
+                <span style={{fontSize:10,color:'#374151',lineHeight:'1.3',wordBreak:'break-word'}}>{d.name}</span>
+              </div>
+              <span style={{fontSize:10,fontWeight:700,color:'#1F2B59',whiteSpace:'nowrap',flexShrink:0}}>
+                {d.value.toLocaleString()} <span style={{fontWeight:400,color:'#9CA3AF'}}>({d.pct}%)</span>
+              </span>
             </div>
-            <span style={{fontSize:11,fontWeight:700,color:'#1F2B59'}}>
-              {d.value} <span style={{fontWeight:400,color:'#9CA3AF'}}>({d.pct}%)</span>
-            </span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,
                  boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
       <div style={{marginBottom:16}}>
         <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>
-          CarAudit Closed — Důvody uzavření (Phase 2)
+          CarAudit Closed — Top 10 důvodů (Phase 2)
         </h2>
-        <span style={{fontSize:11,color:'#7B87A8'}}>Pouze Phase 2 Closed · bez 1st Call · dle CA Reason Code · seřazeno dle četnosti</span>
+        <span style={{fontSize:11,color:'#7B87A8'}}>Pouze Phase 2 Closed · bez 1st Call · reálné hodnoty CA Reason Code · seřazeno dle četnosti</span>
       </div>
       <div style={{display:'flex',gap:20}}>
-        <DonutPanel title={`${MONTH_NAMES[curMonth]} ${curYear}`} subtitle="Aktuální měsíc" chartData={aggregate(cmRows)} total={cmTotal}/>
+        <DonutPanel title={`${MONTH_NAMES[curMonth-1]} ${curYear}`} subtitle="Aktuální měsíc"
+          chartData={aggregate(cmRows)} total={sumTotal(cmRows)}/>
         <div style={{width:1,background:'#f1f5f9',alignSelf:'stretch'}}/>
-        <DonutPanel title={`Rok ${curYear}`} subtitle="Aktuální rok" chartData={aggregate(cyRows)} total={cyTotal}/>
+        <DonutPanel title={`Rok ${curYear}`} subtitle="Aktuální rok"
+          chartData={aggregate(cyRows)} total={sumTotal(cyRows)}/>
         <div style={{width:1,background:'#f1f5f9',alignSelf:'stretch'}}/>
-        <DonutPanel title={`Rok ${prevYear}`} subtitle="Předchozí rok" chartData={aggregate(pyRows)} total={pyTotal}/>
+        <DonutPanel title={`Rok ${prevYear}`} subtitle="Předchozí rok"
+          chartData={aggregate(pyRows)} total={sumTotal(pyRows)}/>
       </div>
     </div>
   );
@@ -3365,7 +3375,7 @@ const FirstCallChart = ({data, title, subtitle, infoKey}) => {
 };
 
 // === MAIN DASHBOARD ===
-const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCostData, caWeeklyCostDataDE, caSlaVinData, caSlaVinWeeklyData, caAudSelMonthly, caAudSelWeekly, firstCallData, fcClosedReasonData, caWeeklyStatusData, caClosedReasonData}) => {
+const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCostData, caWeeklyCostDataDE, caSlaVinData, caSlaVinWeeklyData, caAudSelMonthly, caAudSelWeekly, firstCallData, fcClosedReasonData, caWeeklyStatusData, caClosedReasonData, caReasonRawData}) => {
   const [range, setRange] = useState(27);
   const today = new Date();
   const updated = `${today.getDate()}.${today.getMonth()+1}.${today.getFullYear()} ${String(today.getHours()).padStart(2,'0')}:${String(today.getMinutes()).padStart(2,'0')}`;
@@ -3620,7 +3630,9 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           />
         </div>}
         {caClosedReasonData && caClosedReasonData.length > 0 &&
-          <CAPhase2DonutsChart data={caClosedReasonData}/>
+          {caReasonRawData && caReasonRawData.length > 0 &&
+            <CAPhase2DonutsChart data={caReasonRawData}/>
+          }
         }
                 {/* CarAudit KPI Cards */}
         {caData.length > 0 && <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
@@ -3752,6 +3764,7 @@ const App = () => {
   const [fcClosedReasonData] = useState(window.FC_CLOSED_REASON_DATA || []);
   const [caWeeklyStatusData] = useState(window.CARAUDIT_WEEKLY_DATA || []);
   const [caClosedReasonData] = useState(window.CA_CLOSED_REASON_DATA || []);
+  const [caReasonRawData, setCaReasonRawData] = useState([]);
   const [loading, setLoading] = useState(!USE_TEST_DATA);
   const [error, setError] = useState(null);
   const [token, setToken] = useState(null);
@@ -3767,9 +3780,10 @@ const App = () => {
   const fetchData = async (t) => {
     setLoading(true); setError(null);
     try {
-      const [resp, caResp] = await Promise.all([
+      const [resp, caResp, rawResp] = await Promise.all([
         fetch(API_URL, {headers:{'Authorization':`Bearer ${t}`}}),
-        fetch(CA_API_URL, {headers:{'Authorization':`Bearer ${t}`}})
+        fetch(CA_API_URL, {headers:{'Authorization':`Bearer ${t}`}}),
+        fetch(CA_REASON_RAW_API_URL, {headers:{'Authorization':`Bearer ${t}`}})
       ]);
       if (!resp.ok) {
         if (resp.status===401||resp.status===403) throw new Error('Invalid token.');
@@ -3780,6 +3794,16 @@ const App = () => {
       if (caResp.ok) {
         const caJson = await caResp.json();
         setCaData(caJson.records);
+      }
+      if (rawResp.ok) {
+        const rawJson = await rawResp.json();
+        const parsed = (rawJson.records || []).map(r => ({
+          period: r.fields.Period || '',
+          year: r.fields.Year || 0,
+          month: r.fields.Month || 0,
+          reasons: (() => { try { return JSON.parse(r.fields.ReasonsJson || '[]'); } catch(e) { return []; } })()
+        }));
+        setCaReasonRawData(parsed);
       }
     } catch(err) { setError(err.message); }
     finally { setLoading(false); }
@@ -3793,7 +3817,7 @@ const App = () => {
   if (!USE_TEST_DATA && !token && !loading) return <TokenScreen/>;
   if (loading) return <LoadingScreen/>;
   if (error) return <ErrorScreen msg={error} onRetry={()=>fetchData(token)} onReset={handleReset}/>;
-  if (data) return <Dashboard rawData={data} caRawData={caData} caWeeklyData={caWeeklyData} caAcceptedData={caAcceptedData} caWeeklyCostData={caWeeklyCostData} caWeeklyCostDataDE={caWeeklyCostDataDE} caSlaVinData={caSlaVinData} caSlaVinWeeklyData={caSlaVinWeeklyData} caAudSelMonthly={caAudSelMonthly} caAudSelWeekly={caAudSelWeekly} firstCallData={firstCallData} fcClosedReasonData={fcClosedReasonData} caWeeklyStatusData={caWeeklyStatusData} caClosedReasonData={caClosedReasonData}/>;
+  if (data) return <Dashboard rawData={data} caRawData={caData} caWeeklyData={caWeeklyData} caAcceptedData={caAcceptedData} caWeeklyCostData={caWeeklyCostData} caWeeklyCostDataDE={caWeeklyCostDataDE} caSlaVinData={caSlaVinData} caSlaVinWeeklyData={caSlaVinWeeklyData} caAudSelMonthly={caAudSelMonthly} caAudSelWeekly={caAudSelWeekly} firstCallData={firstCallData} fcClosedReasonData={fcClosedReasonData} caWeeklyStatusData={caWeeklyStatusData} caClosedReasonData={caClosedReasonData} caReasonRawData={caReasonRawData}/>;
   return null;
 };
 
