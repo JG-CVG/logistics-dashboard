@@ -1716,6 +1716,21 @@ const CHART_INFO = {
       {title:'Zdroj',text:'CA Reason Code skupiny: Car not available, Seller fault, Car condition, Client, Auto reject, Other. Dle CA New CarAudit Date.'},
     ],
   },
+  'ca_top10_reasons': {
+    title: 'CarAudit Closed — Top 10 Reasons (Phase 2)',
+    icon: '🔴',
+    sections: [
+      {title:'Co graf zobrazuje',text:'Tři donut charts side-by-side: aktuální měsíc / aktuální rok / předchozí rok. Každý panel zobrazuje TOP 10 nejčastějších důvodů uzavření CarAuditů — reálné hodnoty ze sloupce CA Reason Code (bez přeskupování do kategorií).'},
+      {title:'Filtr — Phase 2 Closed',text:'Zahrnuje CarAudity kde CarAudit Status obsahuje "reject" A NENÍ Phase 1 reject. Phase 1 rejecty (vyloučeny): reject awaiting selection, reject auditor selection, reject audit order, reject caraudit preparation, reject audit result.'},
+      {title:'Filtry',filters:[
+        {label:'Časová osa',value:'CA New CarAudit Date (datum vzniku, ne datum uzavření)'},
+        {label:'Phase 1 rejecty',value:'VYLOUČENY — pouze Phase 2'},
+        {label:'Top N',value:'10 důvodů na panel, 15 uloženo v Airtable'},
+      ]},
+      {title:'Barvy',text:'Každý reason code má konzistentní barvu napříč všemi třemi panely. Barvy jsou přiřazeny dle globálního pořadí (all-time četnost) — stejný reason code = stejná barva vždy.'},
+      {title:'Zdroj dat',text:'Airtable tabulka CAReasonRaw (tblux8gxrbFpuNfAe) — jeden záznam per měsíc, ReasonsJson field obsahuje top-15 důvodů jako JSON. Aktualizuje se při každém dashboard update.'},
+    ],
+  },
   'ca_recommended': {
     title: 'CA done — Recommended / Not recommended',
     icon: '✅',
@@ -3072,6 +3087,7 @@ const CAPhase2DonutsChart = ({data}) => {
       <div style={{marginBottom:16}}>
         <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>
           🔴 CarAudit Closed — Top 10 Reasons (Phase 2)
+          {window.InfoButton && <window.InfoButton infoKey="ca_top10_reasons"/>}
         </h2>
         <span style={{fontSize:11,color:'#7B87A8'}}>Phase 2 Closed only · excl. 1st Call · real CA Reason Code values · sorted by frequency</span>
       </div>
