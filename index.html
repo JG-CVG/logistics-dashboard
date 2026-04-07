@@ -2962,7 +2962,7 @@ const CarAuditWeeklyChart = ({data, title, subtitle, infoKey}) => {
 
 
 
-// === CA CLOSED REASON DONUTS (aktuální měsíc / rok / předchozí rok) ===
+// === CA CLOSED REASON DONUTS (current month / year / previous year) ===
 // Palette for up to 15 distinct reason codes
 const RAW_REASON_PALETTE = [
   '#3E47DD','#ef4444','#f97316','#eab308','#22c55e',
@@ -2976,11 +2976,30 @@ const CAPhase2DonutsChart = ({data}) => {
   const curYear = today.getFullYear();
   const prevYear = curYear - 1;
   const curMonth = today.getMonth() + 1; // 1-based
-  const MONTH_NAMES = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+  const MONTH_NAMES_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const R = Math.PI / 180;
   const TOP_N = 10;
 
-  // Aggregate reasons from monthly rows, sum counts, return top N
+  const cmRows = data.filter(r => r.year === curYear && r.month === curMonth);
+  const cyRows = data.filter(r => r.year === curYear);
+  const pyRows = data.filter(r => r.year === prevYear);
+
+  // Build a GLOBAL color map: assign colors by all-time frequency rank so that
+  // the same reason code always gets the same color across all three panels
+  const globalTotals = {};
+  data.forEach(row => {
+    (row.reasons || []).forEach(({r, c}) => {
+      globalTotals[r] = (globalTotals[r] || 0) + c;
+    });
+  });
+  const globalColorMap = {};
+  Object.entries(globalTotals)
+    .sort((a,b) => b[1] - a[1])
+    .forEach(([name], i) => {
+      globalColorMap[name] = RAW_REASON_PALETTE[i % RAW_REASON_PALETTE.length];
+    });
+
+  // Aggregate reasons from rows, return top N with colors from global map
   const aggregate = (rows) => {
     const totals = {};
     rows.forEach(row => {
@@ -2992,17 +3011,13 @@ const CAPhase2DonutsChart = ({data}) => {
     return Object.entries(totals)
       .sort((a,b) => b[1] - a[1])
       .slice(0, TOP_N)
-      .map(([name, value], i) => ({
+      .map(([name, value]) => ({
         name,
         value,
-        color: RAW_REASON_PALETTE[i % RAW_REASON_PALETTE.length],
+        color: globalColorMap[name] || '#999',
         pct: total > 0 ? +(value / total * 100).toFixed(1) : 0
       }));
   };
-
-  const cmRows = data.filter(r => r.year === curYear && r.month === curMonth);
-  const cyRows = data.filter(r => r.year === curYear);
-  const pyRows = data.filter(r => r.year === prevYear);
 
   const sumTotal = (rows) => rows.reduce((s,r) => s + (r.reasons||[]).reduce((a,x)=>a+x.c,0), 0);
 
@@ -3016,7 +3031,7 @@ const CAPhase2DonutsChart = ({data}) => {
   const DonutPanel = ({title, subtitle, chartData, total}) => {
     if (!chartData || chartData.length === 0) return (
       <div style={{flex:1,minWidth:0,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontSize:12}}>
-        Žádná data
+        No data
       </div>
     );
     return (
@@ -3053,22 +3068,21 @@ const CAPhase2DonutsChart = ({data}) => {
   };
 
   return (
-    <div style={{background:'#fff',borderRadius:10,padding:'20px 24px',marginBottom:16,
-                 boxShadow:'0 2px 8px rgba(31,43,89,.08)'}}>
+    <div style={{background:'#fff',padding:'20px 24px'}}>
       <div style={{marginBottom:16}}>
         <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>
-          CarAudit Closed — Top 10 důvodů (Phase 2)
+          🔴 CarAudit Closed — Top 10 Reasons (Phase 2)
         </h2>
-        <span style={{fontSize:11,color:'#7B87A8'}}>Pouze Phase 2 Closed · bez 1st Call · reálné hodnoty CA Reason Code · seřazeno dle četnosti</span>
+        <span style={{fontSize:11,color:'#7B87A8'}}>Phase 2 Closed only · excl. 1st Call · real CA Reason Code values · sorted by frequency</span>
       </div>
       <div style={{display:'flex',gap:20}}>
-        <DonutPanel title={`${MONTH_NAMES[curMonth-1]} ${curYear}`} subtitle="Aktuální měsíc"
+        <DonutPanel title={`${MONTH_NAMES_EN[curMonth-1]} ${curYear}`} subtitle="Current month"
           chartData={aggregate(cmRows)} total={sumTotal(cmRows)}/>
         <div style={{width:1,background:'#f1f5f9',alignSelf:'stretch'}}/>
-        <DonutPanel title={`Rok ${curYear}`} subtitle="Aktuální rok"
+        <DonutPanel title={`${curYear}`} subtitle="Current year"
           chartData={aggregate(cyRows)} total={sumTotal(cyRows)}/>
         <div style={{width:1,background:'#f1f5f9',alignSelf:'stretch'}}/>
-        <DonutPanel title={`Rok ${prevYear}`} subtitle="Předchozí rok"
+        <DonutPanel title={`${prevYear}`} subtitle="Previous year"
           chartData={aggregate(pyRows)} total={sumTotal(pyRows)}/>
       </div>
     </div>
@@ -3630,7 +3644,9 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           />
         </div>}
         {caReasonRawData && caReasonRawData.length > 0 &&
-          <CAPhase2DonutsChart data={caReasonRawData}/>
+          <div style={{borderLeft:'4px solid #ef4444',borderRadius:10,overflow:'hidden',marginBottom:16,background:'#FFF5F5'}}>
+            <CAPhase2DonutsChart data={caReasonRawData}/>
+          </div>
         }
                 {/* CarAudit KPI Cards */}
         {caData.length > 0 && <div style={{display:'flex',gap:12,marginBottom:16,flexWrap:'wrap'}}>
