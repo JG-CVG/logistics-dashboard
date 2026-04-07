@@ -1611,14 +1611,15 @@ const CHART_INFO = {
         {label:'4. Contract Accepted',value:'Pouze Accepted Date → měsíc dle Accepted Date'},
       ]},
       {title:'Podmínka zahrnutí',text:'Objednávka musí mít minimálně vyplněné Contract Accepted Date.'},
-      {title:'📈 Predikce konce měsíce (EOM)',text:'Pro aktuální měsíc graf zobrazuje prediktivní rozšíření sloupce (průhledný modrý pruhovaný bar). Predikce je počítána pouze z Contract Paid (ip) — cíl je odhadnout finální počet zaplacených objednávek.'},
+      {title:'📈 Predikce konce měsíce (EOM)',text:'Pro aktuální měsíc graf zobrazuje prediktivní rozšíření sloupce (průhledný modrý pruhovaný bar). Predikce odhaduje finální počet Contract Paid na konci měsíce.'},
+      {title:'Základ predikce: ip + ia',text:'Do výpočtu vstupuje ip (Contract Paid) + ia (Contract Accepted). Contract Accepted se do konce měsíce prakticky vždy konvertuje na Contract Paid — stejná logika jako u Carvago (cp + ca).'},
       {title:'Predikční křivka (referenční body)',filters:[
-        {label:'Den 7',value:'≈ 19,5 % Contract Paid za celý měsíc'},
-        {label:'Den 14',value:'≈ 43,5 % Contract Paid za celý měsíc'},
-        {label:'Den 20',value:'≈ 65,2 % Contract Paid za celý měsíc'},
-        {label:'Den 28',value:'≈ 91,8 % Contract Paid za celý měsíc'},
+        {label:'Den 7',value:'≈ 19,5 % finálního počtu ip+ia'},
+        {label:'Den 14',value:'≈ 43,5 % finálního počtu ip+ia'},
+        {label:'Den 20',value:'≈ 65,2 % finálního počtu ip+ia'},
+        {label:'Den 28',value:'≈ 91,8 % finálního počtu ip+ia'},
       ]},
-      {title:'Vzorec predikce',text:'predMean = aktuální_ip ÷ PRED_CURVE[dnešní_den]. Na rozdíl od Carvago grafu vstupuje do predikce pouze Contract Paid (ip), nikoli Contract Accepted. Rozsah: predLow = mean × 0,82 / predHigh = mean × 1,22.'},
+      {title:'Vzorec predikce',text:'predMean = (ip + ia) ÷ PRED_CURVE[dnešní_den]. Rozsah: predLow = mean × 0,82 / predHigh = mean × 1,22.'},
     ],
   },
   'carvago_lost': {
@@ -3351,8 +3352,10 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
   const instaData = data.filter(d => instaMonths.has(d.m));
   const instaLost = ild.filter(d => instaMonths.has(d.m));
 
-  // === END-OF-MONTH PREDICTION for current Instamotion month (Contract Paid only) ===
-  const iActual = isCurrentMonth ? (last?.ip||0) : 0;  // pouze Contract Paid
+  // === END-OF-MONTH PREDICTION for current Instamotion month ===
+  // Základ: ip + ia (Contract Paid + Contract Accepted) — ia se do konce měsíce konvertuje na ip.
+  // Stejná logika jako Carvago (cp + ca). Predikuje finální počet Contract Paid.
+  const iActual = isCurrentMonth ? (last?.ip||0) + (last?.ia||0) : 0;
   const iPredMean  = (isCurrentMonth && predPct > 0) ? Math.round(iActual / predPct) : 0;
   const iPredLow   = iPredMean ? Math.round(iPredMean * 0.82) : 0;
   const iPredHigh  = iPredMean ? Math.round(iPredMean * 1.22) : 0;
