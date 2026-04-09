@@ -2776,7 +2776,7 @@ const CAudSelChart = ({data, title, subtitle, weekly=false, infoKey}) => {
 
   const pctData = slice.map(d => {
     const total = CA_AUDSEL_BUCKETS.reduce((s,b) => s+(d[b.key]||0), 0);
-    const o = {label: weekly ? d.label : d.m, week_num: d.week_num, year: d.year, _total: total};
+    const o = {label: d.label, week_num: d.week_num, year: d.year, _total: total};
     CA_AUDSEL_BUCKETS.forEach(b => { o[b.key] = total ? Math.round((d[b.key]||0)/total*100) : 0; });
     return o;
   });
@@ -2799,7 +2799,7 @@ const CAudSelChart = ({data, title, subtitle, weekly=false, infoKey}) => {
   const AudTooltip = ({active, payload, label}) => {
     if (!active||!payload) return null;
     const d = pctData.find(s => s.label === label);
-    const raw = slice.find(s => (weekly ? s.label : s.m) === label);
+    const raw = slice.find(s => (s.label) === label);
     return (
       <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:'10px 14px',fontSize:12,boxShadow:'0 2px 8px rgba(0,0,0,.1)',minWidth:220}}>
         <div style={{fontWeight:700,marginBottom:6}}>{weekly ? `W${d?.week_num}/${String(d?.year).slice(2)}` : label} · {d?._total} CAs</div>
