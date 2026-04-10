@@ -3855,6 +3855,11 @@ const Dashboard = ({rawData, caRawData, caWeeklyData, caAcceptedData, caWeeklyCo
           />
         </div>}
 
+        {/* 1st Call Closed — Top 10 Reasons (Phase 1) Donut Chart */}
+        {fcClosedTopReasons && fcClosedTopReasons.length > 0 && <div style={{borderLeft:'4px solid #f97316',borderRadius:10,overflow:'hidden',marginBottom:16,background:'#FFF8F0'}}>
+          <FCClosedDonutsChart data={fcClosedTopReasons} />
+        </div>}
+
         {/* Section divider */}
         {caWeeklyStatusData && caWeeklyStatusData.length > 0 && <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16,marginTop:4}}>
           <div style={{fontWeight:800,fontSize:12,color:'#3E47DD',whiteSpace:'nowrap',textTransform:'uppercase',letterSpacing:'1.5px',background:'#fff',padding:'3px 14px',borderRadius:20,border:'1.5px solid #3E47DD44',boxShadow:'0 1px 6px rgba(62,71,221,.1)'}}>📋 CarAudit Pipeline</div>
