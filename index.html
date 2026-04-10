@@ -3272,7 +3272,7 @@ const FCClosedDonutsChart = ({data}) => {
       <div style={{flex:1, minWidth:0}}>
         <div style={{marginBottom:6}}>
           <div style={{fontSize:13,fontWeight:700,color:'#1F2B59'}}>{title}</div>
-          <div style={{fontSize:11,color:'#7B87A8'}}>{subtitle} \u00b7 {total.toLocaleString()} closed</div>
+          <div style={{fontSize:11,color:'#7B87A8'}}>{subtitle} {'\u00b7'} {total.toLocaleString()} closed</div>
         </div>
         <ResponsiveContainer width="100%" height={180}>
           <PieChart>
@@ -3305,10 +3305,10 @@ const FCClosedDonutsChart = ({data}) => {
     <div style={{background:'#fff',padding:'20px 24px'}}>
       <div style={{marginBottom:16}}>
         <h2 style={{fontSize:16,fontWeight:700,color:'#1F2B59',margin:0}}>
-          \u274c 1st Call Closed — Top 10 Reasons (Phase 1)
+          {'\u274c'} 1st Call Closed — Top 10 Reasons (Phase 1)
           {window.InfoButton && <window.InfoButton infoKey="fc_top10_reasons"/>}
         </h2>
-        <span style={{fontSize:11,color:'#7B87A8'}}>Phase 1 Closed only \u00b7 before Awaiting Selection \u00b7 real CA Reason Code values \u00b7 sorted by frequency</span>
+        <span style={{fontSize:11,color:'#7B87A8'}}>Phase 1 Closed only {'\u00b7'} before Awaiting Selection {'\u00b7'} real CA Reason Code values {'\u00b7'} sorted by frequency</span>
       </div>
       <div style={{display:'flex',gap:20}}>
         <DonutPanel title={`${MONTH_NAMES_EN[curMonth-1]} ${curYear}`} subtitle="Current month"
