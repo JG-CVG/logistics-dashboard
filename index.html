@@ -3211,6 +3211,7 @@ const CAPhase2DonutsChart = ({data}) => {
 // === 1ST CALL CLOSED: TOP 10 REASONS DONUT CHART ===
 const FCClosedDonutsChart = ({data}) => {
   if (!data || data.length === 0) return null;
+  const MONTH_NAMES_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   const today = new Date();
   const curYear = today.getFullYear();
   const prevYear = curYear - 1;
